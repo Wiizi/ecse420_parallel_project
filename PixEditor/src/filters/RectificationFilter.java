@@ -70,26 +70,18 @@ public class RectificationFilter extends Filter {
             this.length_offset = length_offset;
         }
         public void run(){
-            // pixel is 32bits, 8 bits for each channel (BYTES_PER_PIXEL channels: RGBA)
-            // rectify RGB but not A
-            byte[] bytes = new byte[12];
+            byte[] bytes = new byte[4];
             ByteBuffer buffer;
             buffer = ByteBuffer.wrap(bytes);
             int i,j,pixel_rgba = 0;
-            int max_index = image_buffer.getHeight() * image_buffer.getWidth();
-            for (int index = length_offset; index < (length_offset + length) && index < max_index; index ++) {
-                i = get_2d(index, image_buffer.getWidth(), 1);
-                j = get_2d(index, image_buffer.getWidth(), 0);
-                //System.out.println("Thread" + this.thread_id + ": doing index " + i + ", " + j);
-                try {
-                    pixel_rgba = image_buffer.getRGB(i, j);
-                } catch (Exception e){
-                    System.out.println("error at index " + index + " [" + i + "," + j + "]; " + image_buffer.getWidth());
-                    e.printStackTrace();
-                    System.exit(-1);
-                }
+            int width = image_buffer.getWidth();
+            for (int index = length_offset; index < (length_offset + length); index ++) {
+                i = get_2d(index, width, 1);
+                j = get_2d(index, width, 0);
+                pixel_rgba = image_buffer.getRGB(i, j);
                 buffer.putInt(0, pixel_rgba);
                 int val;
+                // ARGB format for the pixel data
                 for (int rgba_index = 0; rgba_index < BYTES_PER_PIXEL; rgba_index++){
                     if (rgba_index != 0) {
                         val = getUnsignedByte(buffer.get(rgba_index));
@@ -105,9 +97,5 @@ public class RectificationFilter extends Filter {
                 output_buffer.setRGB(i,j,val);
             }
         }
-    }
-
-    public int getUnsignedByte(byte b){
-        return ((b & 0b10000000) == 0b10000000) ? (b+255) : b;
     }
 }

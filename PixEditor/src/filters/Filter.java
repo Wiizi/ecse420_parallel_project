@@ -14,4 +14,7 @@ public abstract class Filter {
     protected int get_2d(int index, int width, int ij){
         return (((ij)==0)?((index)/(width)):((index)%(width)));
     }
+    protected int getUnsignedByte(byte b){
+        return ((b & 0b10000000) == 0b10000000) ? (b+255) : b;
+    }
 }
