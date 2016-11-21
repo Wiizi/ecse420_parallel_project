@@ -7,17 +7,15 @@ import java.util.Arrays;
 /**
  * Created by Andrei-ch on 2016-11-20.
  */
-public class RectificationFilter extends Filter {
-    public RectificationFilter(int number_of_threads){
-        this.number_of_threads = number_of_threads;
-    }
-
+public abstract class LinearFilter extends Filter {
     @Override
     public BufferedImage applyFilter(BufferedImage image){
         BufferedImage output_image = image.getSubimage(0,0,image.getWidth(),image.getHeight());
         filter(image, output_image, this.number_of_threads);
         return output_image;
     }
+
+    public abstract int applyFilterOnPixel(int val);
 
     public void filter(BufferedImage image, BufferedImage output_image, int number_of_threads){
         int width_in, height_in, total_pixels, pixels_per_thread, leftover;
@@ -85,9 +83,7 @@ public class RectificationFilter extends Filter {
                 for (int rgba_index = 0; rgba_index < BYTES_PER_PIXEL; rgba_index++){
                     if (rgba_index != 0) {
                         val = getUnsignedByte(buffer.get(rgba_index));
-                        val -= 127;
-                        val = (val >= 0) ? val : 0;
-                        val += 127;
+                        val = applyFilterOnPixel(val);
                     } else {
                         val = 255;
                     }
