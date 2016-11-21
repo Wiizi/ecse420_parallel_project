@@ -9,12 +9,13 @@ import java.io.IOException;
  * Created by Andrei-ch on 2016-11-20.
  */
 public class ImageRW {
-
     public static BufferedImage readImage(String filename){
         BufferedImage image = null;
         try {
             image = ImageIO.read(new File(filename + ".png"));
         } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
         }
         return image;
     }
@@ -24,6 +25,8 @@ public class ImageRW {
             File outputfile = new File(filename + ".png");
             ImageIO.write(image, "png", outputfile);
         } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
         }
     }
 }

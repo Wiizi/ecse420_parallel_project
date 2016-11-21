@@ -5,10 +5,8 @@ import java.awt.image.BufferedImage;
 /**
  * Created by Andrei-ch on 2016-11-20.
  */
-public class ConvolutionFilter implements IFilter {
-
+public class ConvolutionFilter extends Filter {
     public ConvolutionFilter(){
-
     }
 
     @Override
