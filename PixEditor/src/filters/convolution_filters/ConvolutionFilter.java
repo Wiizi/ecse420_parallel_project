@@ -1,4 +1,6 @@
-package filters;
+package filters.convolution_filters;
+
+import filters.Filter;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;

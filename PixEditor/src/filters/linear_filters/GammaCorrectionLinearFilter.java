@@ -1,7 +1,5 @@
 package filters.linear_filters;
 
-import filters.LinearFilter;
-
 /**
  * Created by Andrei-ch on 2016-11-21.
  */

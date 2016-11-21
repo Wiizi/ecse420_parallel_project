@@ -1,9 +1,7 @@
 import filters.Filter;
-import filters.FilteredImage;
-import filters.LinearFilter;
+import image_utilities.FilteredImage;
 import filters.convolution_filters.SharpenConvolutionFilter;
 import filters.linear_filters.GammaCorrectionLinearFilter;
-import filters.linear_filters.RectificationLinearFilter;
 import image_utilities.ImageRW;
 
 import java.awt.image.BufferedImage;

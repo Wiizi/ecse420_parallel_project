@@ -1,4 +1,6 @@
-package filters;
+package image_utilities;
+
+import filters.Filter;
 
 import java.awt.image.BufferedImage;
 

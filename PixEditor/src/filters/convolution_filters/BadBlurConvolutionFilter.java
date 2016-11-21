@@ -1,7 +1,5 @@
 package filters.convolution_filters;
 
-import filters.ConvolutionFilter;
-
 /**
  * Created by Andrei-ch on 2016-11-21.
  */

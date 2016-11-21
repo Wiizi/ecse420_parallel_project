@@ -1,4 +1,6 @@
-package filters;
+package filters.linear_filters;
+
+import filters.Filter;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
@@ -87,6 +89,8 @@ public abstract class LinearFilter extends Filter {
                     } else {
                         val = 255;
                     }
+                    val = (val < 0) ? 0 : val;
+                    val = (val > 255) ? 255 : val;
                     buffer.put(rgba_index, (byte) val);
                 }
                 val = buffer.getInt(0);
