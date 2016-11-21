@@ -34,7 +34,7 @@ public class RectificationFilter extends Filter {
         for (int i = 0; i < number_of_threads && i < total_pixels; i++) {
             runnables[i] = new RectificationThread(i,image, output_image, pixels_per_thread, pixels_per_thread * i);
         }
-        System.out.println("leftover " + leftover);
+        //System.out.println("leftover " + leftover);
         // if image length is not a multiple of number of threads there will be some leftover bits
         if (leftover > 0){
             runnables[0].length += leftover;

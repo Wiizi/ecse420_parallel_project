@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
  */
 public abstract class ConvolutionFilter extends Filter {
     protected float[][] weights;
+    protected int radius;
 
     @Override
     public BufferedImage applyFilter(BufferedImage image){
@@ -32,7 +33,7 @@ public abstract class ConvolutionFilter extends Filter {
         for (int i = 0; i < number_of_threads && i < total_pixels; i++) {
             runnables[i] = new ConvolutionThread(i,image, output_image, pixels_per_thread, pixels_per_thread * i);
         }
-        System.out.println("leftover " + leftover);
+        //System.out.println("leftover " + leftover);
         // if image length is not a multiple of number of threads there will be some leftover bits
         if (leftover > 0){
             runnables[0].length += leftover;
@@ -55,7 +56,7 @@ public abstract class ConvolutionFilter extends Filter {
             }
         }
         long t2 = System.currentTimeMillis();
-        System.out.println("Time spent inside filter: [" +(t2-t1) +"]");
+        //System.out.println("Time spent inside filter: [" +(t2-t1) +"]");
         System.out.println("Filtering complete.");
     }
 
@@ -95,15 +96,15 @@ public abstract class ConvolutionFilter extends Filter {
             imageHeight = image_buffer.getHeight();
             i = get_2d(length_offset, imageWidth, 1);
             j = get_2d(length_offset, imageWidth, 0);
-            System.out.println("Thread" + this.thread_id + " working on " + this.length + " pixels starting at offset " + this.length_offset + "; ["+i+","+j+"]");
+            //System.out.println("Thread" + this.thread_id + " working on " + this.length + " pixels starting at offset " + this.length_offset + "; ["+i+","+j+"]");
             int counter = 0;
             while (this.length > 0){
                 counter++;
                 int cA, cR, cG, cB;
                 cA = 255;
                 cR = cG = cB = 0;
-                for (int jj = -1; jj < 2; jj++){
-                    for (int ii = -1; ii < 2; ii++){
+                for (int jj = -radius; jj < radius+1; jj++){
+                    for (int ii = -radius; ii < radius+1; ii++){
                         int x,y;
                         x = i + ii;
                         y = j + jj;
@@ -136,7 +137,7 @@ public abstract class ConvolutionFilter extends Filter {
                 }
                 this.length--;
             }
-            System.out.println("thread" + this.thread_id + ": counter " + counter);
+            //System.out.println("thread" + this.thread_id + ": counter " + counter);
         }
     }
 }
