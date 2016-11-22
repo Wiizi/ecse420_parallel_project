@@ -1,8 +1,18 @@
 
+import java.awt.Dimension;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -12,10 +22,21 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author BinaryPowa
+ * @author Andoni Roman
  */
 public class mainUI extends javax.swing.JFrame {
-
+    
+    /**
+     * GLOBALS
+     */
+    public String file_path = null;
+    
+    public int maximum_preview_height = 630; 
+    
+    public int maximum_preview_width = 920; 
+    
+    public BufferedImage loaded_original;
+            
     /**
      * Creates new form mainUI
      */
@@ -23,8 +44,6 @@ public class mainUI extends javax.swing.JFrame {
         initComponents();
     }
     
-    public String file_path = null;
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -38,15 +57,10 @@ public class mainUI extends javax.swing.JFrame {
         editing_menu = new javax.swing.JFrame();
         image_label = new javax.swing.JLabel();
         back_to_menu = new javax.swing.JButton();
-        blur_label = new javax.swing.JLabel();
-        blur_plus = new javax.swing.JButton();
-        blur_minus = new javax.swing.JButton();
-        pixelate_label = new javax.swing.JLabel();
-        pixelate_plus = new javax.swing.JButton();
-        pixelate_minus = new javax.swing.JButton();
-        gradient_label = new javax.swing.JLabel();
-        gradient_plus = new javax.swing.JButton();
-        gradient_minus = new javax.swing.JButton();
+        filter_1 = new javax.swing.JButton();
+        Filter_2 = new javax.swing.JButton();
+        filter_3 = new javax.swing.JButton();
+        filter_4 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         title = new javax.swing.JLabel();
         file_choice_button = new javax.swing.JButton();
@@ -58,11 +72,17 @@ public class mainUI extends javax.swing.JFrame {
         editing_menu.setSize(new java.awt.Dimension(1280, 800));
         editing_menu.getContentPane().setLayout(null);
 
-        image_label.setText("jLabel2");
+        image_label.setMaximumSize(new java.awt.Dimension(920, 630));
+        image_label.setMinimumSize(new java.awt.Dimension(100, 100));
         editing_menu.getContentPane().add(image_label);
-        image_label.setBounds(490, 380, 45, 16);
+        image_label.setBounds(60, 100, 890, 520);
 
         back_to_menu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ui_elements/back_to_main.png"))); // NOI18N
+        back_to_menu.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                back_to_menuMouseClicked(evt);
+            }
+        });
         back_to_menu.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 back_to_menuActionPerformed(evt);
@@ -71,62 +91,31 @@ public class mainUI extends javax.swing.JFrame {
         editing_menu.getContentPane().add(back_to_menu);
         back_to_menu.setBounds(20, 30, 230, 30);
 
-        blur_label.setFont(new java.awt.Font("Al Bayan", 1, 24)); // NOI18N
-        blur_label.setForeground(new java.awt.Color(255, 255, 255));
-        blur_label.setText("BLUR");
-        editing_menu.getContentPane().add(blur_label);
-        blur_label.setBounds(1080, 220, 64, 30);
-
-        blur_plus.setText("+");
-        blur_plus.addActionListener(new java.awt.event.ActionListener() {
+        filter_1.setText("Filter_1");
+        filter_1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                blur_plusActionPerformed(evt);
+                filter_1ActionPerformed(evt);
             }
         });
-        editing_menu.getContentPane().add(blur_plus);
-        blur_plus.setBounds(1170, 250, 40, 30);
+        editing_menu.getContentPane().add(filter_1);
+        filter_1.setBounds(1050, 130, 110, 30);
 
-        blur_minus.setText("-");
-        editing_menu.getContentPane().add(blur_minus);
-        blur_minus.setBounds(1020, 250, 40, 30);
+        Filter_2.setText("Filter_2");
+        editing_menu.getContentPane().add(Filter_2);
+        Filter_2.setBounds(1050, 170, 110, 30);
 
-        pixelate_label.setFont(new java.awt.Font("Al Bayan", 1, 24)); // NOI18N
-        pixelate_label.setForeground(new java.awt.Color(255, 255, 255));
-        pixelate_label.setText("PIXELATE");
-        editing_menu.getContentPane().add(pixelate_label);
-        pixelate_label.setBounds(1050, 350, 130, 40);
+        filter_3.setText("Filter_3");
+        editing_menu.getContentPane().add(filter_3);
+        filter_3.setBounds(1050, 210, 110, 30);
 
-        pixelate_plus.setText("+");
-        pixelate_plus.addActionListener(new java.awt.event.ActionListener() {
+        filter_4.setText("Filter_4");
+        filter_4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pixelate_plusActionPerformed(evt);
+                filter_4ActionPerformed(evt);
             }
         });
-        editing_menu.getContentPane().add(pixelate_plus);
-        pixelate_plus.setBounds(1170, 390, 40, 30);
-
-        pixelate_minus.setText("-");
-        editing_menu.getContentPane().add(pixelate_minus);
-        pixelate_minus.setBounds(1020, 390, 40, 30);
-
-        gradient_label.setFont(new java.awt.Font("Al Bayan", 1, 24)); // NOI18N
-        gradient_label.setForeground(new java.awt.Color(255, 255, 255));
-        gradient_label.setText("GRADIENT");
-        editing_menu.getContentPane().add(gradient_label);
-        gradient_label.setBounds(1050, 500, 170, 40);
-
-        gradient_plus.setText("+");
-        gradient_plus.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                gradient_plusActionPerformed(evt);
-            }
-        });
-        editing_menu.getContentPane().add(gradient_plus);
-        gradient_plus.setBounds(1170, 530, 40, 30);
-
-        gradient_minus.setText("-");
-        editing_menu.getContentPane().add(gradient_minus);
-        gradient_minus.setBounds(1020, 530, 40, 30);
+        editing_menu.getContentPane().add(filter_4);
+        filter_4.setBounds(1050, 250, 110, 29);
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ui_elements/background_frosted.jpg"))); // NOI18N
         jLabel1.setText("jLabel1");
@@ -175,11 +164,108 @@ public class mainUI extends javax.swing.JFrame {
         bg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ui_elements/background.jpg"))); // NOI18N
         bg.setText("jLabel1");
         getContentPane().add(bg);
-        bg.setBounds(10, 0, 1270, 940);
+        bg.setBounds(0, 0, 1290, 950);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
+    /**
+     * Handler for the editing menu
+     */
+    private void handle_editing_menu()
+    {
+        Image img;
+        int img_width = 0;
+        int img_height = 0;
+        int new_img_width = 0;
+        int new_img_height = 0;
+        
+        // open image file, analyze the sizes and try to fit
+        try
+        {
+            loaded_original = ImageIO.read(new File(file_path));
+
+            img_width = loaded_original.getWidth();
+            new_img_width = img_width;
+            System.out.println("Log: Image width: " + new_img_width);
+            img_height = loaded_original.getHeight();
+            new_img_height = img_height;
+            System.out.println("Log: Image height: " + new_img_height);
+            
+            //avoid overfilling the page, keep the sizes smaller than thresholds 
+            //decision is made on mutually exclusive cases
+            if (img_width > maximum_preview_width || img_height > maximum_preview_height)
+            {
+                if(img_width > maximum_preview_width && !(img_height > maximum_preview_height))
+                {
+                    System.out.println("Log: Image too big for preview, resizing based on width!");
+                    double proportion = (double)img_width/(double)maximum_preview_width;
+                    double remainder = 1 - proportion;
+                    new_img_width = (int) ((int) img_width * remainder);
+                    new_img_height = (int) ((int) img_height * remainder);
+                }
+                else if (img_height > maximum_preview_height && !(img_width > maximum_preview_width))
+                {
+                    System.out.println("Log: Image too big for preview, resizing! base on height");
+                    double proportion = (double)img_height/(double)maximum_preview_height;
+                    double remainder = 1 - proportion;
+                    new_img_width = (int) ((int) img_width * remainder);
+                    new_img_height = (int) ((int) img_height * remainder);
+                }
+                else if (img_height > maximum_preview_height && img_width > maximum_preview_width)
+                {
+                    System.out.println("Log: Image too big for preview, resizing! base on height AND width");
+                    double proportion_width = (double)img_width/(double)maximum_preview_width;
+                    System.out.println("Log: Prop width:" + proportion_width);
+
+                    double proportion_height = (double)img_height/(double)maximum_preview_height;
+                    System.out.println("Log: Prop height:" + proportion_height);
+
+
+                    
+                    double biggest = proportion_width;
+                    if (proportion_width<proportion_height)
+                    {
+                        biggest = proportion_height;
+                    }
+                    
+                    System.out.println("Biggest prop chosen: " + biggest);
+                    double remainder = biggest - 1;
+                    remainder = 1 - remainder;
+                    System.out.println("Remainder: " + remainder);
+                    new_img_width = (int) ((int) img_width * remainder);
+                    new_img_height = (int) ((int) img_height * remainder);
+                    System.out.println("Log: NEW height:" + new_img_height);
+                    System.out.println("Log: NEW width:" + new_img_width);
+         
+                }
+            }
+            
+                //SET LABLE
+            Dimension size = new Dimension(maximum_preview_width, maximum_preview_height);
+            image_label.setSize(size);
+
+            image_label.setLayout(new GridBagLayout());
+            
+            ImageIcon imag = new ImageIcon(file_path);
+            Image image = imag.getImage(); // transform it 
+            Image newimg = image.getScaledInstance(new_img_width, new_img_height,  java.awt.Image.SCALE_SMOOTH);
+            imag = new ImageIcon(newimg);
+            
+            JLabel label = new JLabel(imag);
+            label.setHorizontalAlignment(SwingConstants.CENTER);
+            label.setVerticalAlignment(SwingConstants.BOTTOM);
+            //image_label.add(label);
+            image_label.setIcon(imag);
+        }
+        catch (IOException ex)
+        {
+            System.out.println("Log: ERROR OPENING THE FILE....CRITICAL.");
+            Logger.getLogger(mainUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+
+    }
     /**
      * Simply shows the path of the chosen file
      * @param evt 
@@ -224,12 +310,14 @@ public class mainUI extends javax.swing.JFrame {
                 is_a_png = true;
                 editing_menu.setVisible(true);
                 this.setVisible(false);
+                System.out.println("Log: Image chosen @ " + file_path);
    
             }
 
             if(is_a_png)
             {
                 System.out.println("Log: Valid file, proceed to filtering!");
+                handle_editing_menu();
             }
             else
             {
@@ -244,21 +332,30 @@ public class mainUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_start_buttonMouseClicked
 
-    private void gradient_plusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gradient_plusActionPerformed
+    private void filter_4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filter_4ActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_gradient_plusActionPerformed
+    }//GEN-LAST:event_filter_4ActionPerformed
 
-    private void pixelate_plusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pixelate_plusActionPerformed
+    private void filter_1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filter_1ActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_pixelate_plusActionPerformed
-
-    private void blur_plusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_blur_plusActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_blur_plusActionPerformed
+    }//GEN-LAST:event_filter_1ActionPerformed
 
     private void back_to_menuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_back_to_menuActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_back_to_menuActionPerformed
+    
+    /**
+     * Back to the main menu button handler.
+     * @param evt 
+     */
+    private void back_to_menuMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_back_to_menuMouseClicked
+        file_path = null;
+        text_field.setText(null);
+        editing_menu.setVisible(false);
+        System.out.println("Log: Back to main!");
+        this.setVisible(true);
+        image_label.removeAll();
+    }//GEN-LAST:event_back_to_menuMouseClicked
     
     /**
      * @param args the command line arguments
@@ -296,22 +393,17 @@ public class mainUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton Filter_2;
     private javax.swing.JButton back_to_menu;
     private javax.swing.JLabel bg;
-    private javax.swing.JLabel blur_label;
-    private javax.swing.JButton blur_minus;
-    private javax.swing.JButton blur_plus;
     private javax.swing.JFrame editing_menu;
     private javax.swing.JButton file_choice_button;
-    private javax.swing.JLabel gradient_label;
-    private javax.swing.JButton gradient_minus;
-    private javax.swing.JButton gradient_plus;
+    private javax.swing.JButton filter_1;
+    private javax.swing.JButton filter_3;
+    private javax.swing.JButton filter_4;
     private javax.swing.JLabel image_label;
     private javax.swing.JDialog jDialog1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel pixelate_label;
-    private javax.swing.JButton pixelate_minus;
-    private javax.swing.JButton pixelate_plus;
     private javax.swing.JButton start_button;
     private javax.swing.JTextField text_field;
     private javax.swing.JLabel title;
