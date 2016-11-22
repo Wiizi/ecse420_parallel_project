@@ -70,31 +70,14 @@ public abstract class LinearFilter extends Filter {
             this.length_offset = length_offset;
         }
         public void run(){
-            byte[] bytes = new byte[4];
-            ByteBuffer buffer;
-            buffer = ByteBuffer.wrap(bytes);
             int i,j,pixel_rgba = 0;
             int width = image_buffer.getWidth();
             for (int index = length_offset; index < (length_offset + length); index ++) {
                 i = get_2d(index, width, 1);
                 j = get_2d(index, width, 0);
                 pixel_rgba = image_buffer.getRGB(i, j);
-                buffer.putInt(0, pixel_rgba);
-                int val;
-                // ARGB format for the pixel data
-                for (int rgba_index = 0; rgba_index < BYTES_PER_PIXEL; rgba_index++){
-                    if (rgba_index != 0) {
-                        val = getUnsignedByte(buffer.get(rgba_index));
-                        val = applyFilterOnPixel(val);
-                    } else {
-                        val = 255;
-                    }
-                    val = (val < 0) ? 0 : val;
-                    val = (val > 255) ? 255 : val;
-                    buffer.put(rgba_index, (byte) val);
-                }
-                val = buffer.getInt(0);
-                output_buffer.setRGB(i,j,val);
+                pixel_rgba = applyFilterOnPixel(pixel_rgba);
+                output_buffer.setRGB(i,j,pixel_rgba);
             }
         }
     }

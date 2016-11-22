@@ -1,7 +1,7 @@
 import filters.Filter;
+import filters.linear_filters.*;
 import image_utilities.FilteredImage;
 import filters.convolution_filters.SharpenConvolutionFilter;
-import filters.linear_filters.GammaCorrectionLinearFilter;
 import image_utilities.ImageRW;
 
 import java.awt.image.BufferedImage;
@@ -10,12 +10,12 @@ import java.awt.image.BufferedImage;
  * Created by Andrei-ch on 2016-11-20.
  */
 public class Main {
-    private static final int number_of_threads = 4;
+    private static final int number_of_threads = 8;
     public static void main(String[] args){
         BufferedImage image_in, image_out;
         image_in = ImageRW.readImage("grumpy");
 
-        Filter linearFilter = new GammaCorrectionLinearFilter(number_of_threads,2f);
+        Filter linearFilter = new SaturationLinearFilter(number_of_threads,1.5f,1f,1);
         Filter convolutionFilter = new SharpenConvolutionFilter(number_of_threads, 1f);
 
         long t1 = System.currentTimeMillis();

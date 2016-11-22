@@ -3,9 +3,11 @@ package filters.linear_filters;
 /**
  * Created by Andrei-ch on 2016-11-21.
  */
-public class RectificationLinearFilter extends LinearFilter{
-    public RectificationLinearFilter(int number_of_threads){
+public class BrightnessLinearFilter extends LinearFilter{
+    private int brightness;
+    public BrightnessLinearFilter(int number_of_threads, float brightness){
         this.number_of_threads = number_of_threads;
+        this.brightness = (int)(255 * brightness);
     }
     @Override
     public int applyFilterOnPixel(int val){
@@ -13,19 +15,17 @@ public class RectificationLinearFilter extends LinearFilter{
         int r = ( val >> 16 ) & 0xff;
         int g = ( val >> 8 ) & 0xff;
         int b = val & 0xff;
-        r = rectifyChannel(r);
-        g = rectifyChannel(g);
-        b = rectifyChannel(b);
+        r = brightnessChannel(r);
+        g = brightnessChannel(g);
+        b = brightnessChannel(b);
         val = b;
         val += (g << 8);
         val += (r << 16);
         val += (a << 24);
         return val;
     }
-    private int rectifyChannel(int val){
-        val -= 127;
-        val = (val >= 0) ? val : 0;
-        val += 127;
-        return val;
+    private int brightnessChannel(int val){
+        return val + this.brightness;
     }
+
 }
