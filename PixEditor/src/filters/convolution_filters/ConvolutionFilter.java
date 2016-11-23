@@ -78,7 +78,6 @@ public abstract class ConvolutionFilter extends Filter {
 
     private class ConvolutionThread implements Runnable{
         private int thread_id;
-        private final int BYTES_PER_PIXEL = 4;
         protected BufferedImage image_buffer, output_buffer;
         protected int length, length_offset;
         public ConvolutionThread(int thread_id, BufferedImage image_buffer, BufferedImage output_buffer, int length, int length_offset){

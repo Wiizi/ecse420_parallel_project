@@ -3,8 +3,6 @@ package filters.linear_filters;
 import filters.Filter;
 
 import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 /**
  * Created by Andrei-ch on 2016-11-20.
@@ -27,12 +25,12 @@ public abstract class LinearFilter extends Filter {
         pixels_per_thread = total_pixels / (number_of_threads);
         leftover = total_pixels - number_of_threads * pixels_per_thread;
 
-        RectificationThread runnables[] = new RectificationThread[number_of_threads];
+        LinearFilterThread runnables[] = new LinearFilterThread[number_of_threads];
         Thread threads[] = new Thread[number_of_threads];
 
         // set up thread args
         for (int i = 0; i < number_of_threads && i < total_pixels; i++) {
-            runnables[i] = new RectificationThread(i,image, output_image, pixels_per_thread, pixels_per_thread * i);
+            runnables[i] = new LinearFilterThread(i,image, output_image, pixels_per_thread, pixels_per_thread * i);
         }
         //System.out.println("leftover " + leftover);
         // if image length is not a multiple of number of threads there will be some leftover bits
@@ -57,12 +55,11 @@ public abstract class LinearFilter extends Filter {
         }
     }
 
-    private class RectificationThread implements Runnable{
+    private class LinearFilterThread implements Runnable{
         private int thread_id;
-        private final int BYTES_PER_PIXEL = 4;
         protected BufferedImage image_buffer, output_buffer;
         protected int length, length_offset;
-        public RectificationThread(int thread_id, BufferedImage image_buffer, BufferedImage output_buffer, int length, int length_offset){
+        public LinearFilterThread(int thread_id, BufferedImage image_buffer, BufferedImage output_buffer, int length, int length_offset){
             this.thread_id = thread_id;
             this.output_buffer = output_buffer;
             this.image_buffer = image_buffer;
