@@ -90,9 +90,7 @@ public abstract class ConvolutionFilter extends Filter {
         }
         public void run(){
             byte[] bytes_in = new byte[4];
-            byte[] bytes_out = new byte[4];
             ByteBuffer buffer_in = ByteBuffer.wrap(bytes_in);
-            ByteBuffer buffer_out = ByteBuffer.wrap(bytes_out);
             int i,j, imageWidth, imageHeight, pixel_rgba;
             imageWidth = image_buffer.getWidth();
             imageHeight = image_buffer.getHeight();
@@ -114,9 +112,9 @@ public abstract class ConvolutionFilter extends Filter {
                             continue;
                         pixel_rgba = image_buffer.getRGB(x,y);
                         buffer_in.putInt(0,pixel_rgba);
-                        cR += weights[ii+1][jj+1] * getUnsignedByte(buffer_in.get(1));
-                        cG += weights[ii+1][jj+1] * getUnsignedByte(buffer_in.get(2));
-                        cB += weights[ii+1][jj+1] * getUnsignedByte(buffer_in.get(3));
+                        cR += weights[ii+radius][jj+radius] * getUnsignedByte(buffer_in.get(1));
+                        cG += weights[ii+radius][jj+radius] * getUnsignedByte(buffer_in.get(2));
+                        cB += weights[ii+radius][jj+radius] * getUnsignedByte(buffer_in.get(3));
                     }
                 }
                 cR = (cR < 0) ? 0 : cR;
@@ -125,12 +123,12 @@ public abstract class ConvolutionFilter extends Filter {
                 cG = (cG > 255) ? 255 : cG;
                 cB = (cB < 0) ? 0 : cB;
                 cB = (cB > 255) ? 255 : cB;
-                buffer_out.put(0, (byte)cA);
-                buffer_out.put(1, (byte)cR);
-                buffer_out.put(2, (byte)cG);
-                buffer_out.put(3, (byte)cB);
+                buffer_in.put(0, (byte)cA);
+                buffer_in.put(1, (byte)cR);
+                buffer_in.put(2, (byte)cG);
+                buffer_in.put(3, (byte)cB);
 
-                pixel_rgba = buffer_out.getInt(0);
+                pixel_rgba = buffer_in.getInt(0);
                 output_buffer.setRGB(i,j, pixel_rgba);
                 i++;
                 if (i == imageWidth){ // preincrement when on the edge of the image
