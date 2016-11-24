@@ -7,7 +7,7 @@ public class BrightnessLinearFilter extends LinearFilter{
     private int brightness;
     public BrightnessLinearFilter(int number_of_threads, float brightness){
         this.number_of_threads = number_of_threads;
-        this.brightness = (int)(255 * brightness);
+        this.brightness = (int)(255 * (brightness-1f));
     }
     @Override
     public int applyFilterOnPixel(int val){

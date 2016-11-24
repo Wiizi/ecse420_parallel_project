@@ -4,7 +4,9 @@ package filters.linear_filters;
  * Created by Andrei-ch on 2016-11-21.
  */
 public class RectificationLinearFilter extends LinearFilter{
-    public RectificationLinearFilter(int number_of_threads){
+    private int rectification_threshold;
+    public RectificationLinearFilter(int number_of_threads, float threshold){
+        this.rectification_threshold = (int) (127 * threshold);
         this.number_of_threads = number_of_threads;
     }
     @Override
