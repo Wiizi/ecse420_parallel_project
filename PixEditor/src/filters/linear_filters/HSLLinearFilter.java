@@ -3,9 +3,9 @@ package filters.linear_filters;
 /**
  * Created by Andrei-ch on 2016-11-21.
  */
-public class SaturationLinearFilter extends LinearFilter{
+public class HSLLinearFilter extends LinearFilter{
     private float hue, saturation, lightness;
-    public SaturationLinearFilter(int number_of_threads, float hue, float saturation, float lightness){
+    public HSLLinearFilter(int number_of_threads, float hue, float saturation, float lightness){
         this.number_of_threads = number_of_threads;
         this.hue = hue - 1f;
         this.saturation = saturation - 1f;

@@ -25,9 +25,9 @@ public class RectificationLinearFilter extends LinearFilter{
         return val;
     }
     private int rectifyChannel(int val){
-        val -= 127;
+        val -= rectification_threshold;
         val = (val >= 0) ? val : 0;
-        val += 127;
+        val += rectification_threshold;
         return val;
     }
 }
