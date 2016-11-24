@@ -10,9 +10,23 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.SwingConstants;
+import image_utilities.FilteredImage;
+import filters.linear_filters.BrightnessLinearFilter;
+import filters.linear_filters.GammaCorrectionLinearFilter;
+import filters.linear_filters.InversionLinearFilter;
+import filters.linear_filters.RectificationLinearFilter;
+import filters.linear_filters.BinarizeLinearFilter;
+import filters.convolution_filters.BadBlurConvolutionFilter;
+import filters.convolution_filters.EdgeDetectConvolutionFilter;
+import filters.convolution_filters.EmbossConvolutionFilter;
+import filters.convolution_filters.SharpenConvolutionFilter;
+import filters.convolution_filters.DefaultConvolutionFilter;
+
+
+import image_utilities.ImageRW;
+import filters.Filter;
+import javax.swing.JButton;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -29,6 +43,23 @@ public class mainUI extends javax.swing.JFrame {
     /**
      * GLOBALS
      */
+    
+    public int THREAD_NUM = 4;
+    
+    public float intensity = 1f;
+    //Filter codes
+    public int brightness = 0;
+    public int gamma = 1;
+    public int inverse = 2;
+    public int rectification = 3;
+    public int saturation = 4;
+    public int convolution = 5;
+    public int badblur = 6;
+    public int edgedetect = 7;
+    public int emboss = 8;
+    public int sharpen = 9;
+    public int binarize = 10;
+    
     public String file_path = null;
     
     public int maximum_preview_height = 630; 
@@ -36,7 +67,23 @@ public class mainUI extends javax.swing.JFrame {
     public int maximum_preview_width = 920; 
     
     public BufferedImage loaded_original;
-            
+    
+    public BufferedImage filtered_image;
+    
+    int currentFilter;
+    
+    ImageIcon original_icon;
+    
+    public int clicks;
+    
+    float filter_level = 0.0f;
+
+    int img_width;
+    int img_height;
+    int new_img_width;
+    int new_img_height;
+    boolean saved = false;
+   
     /**
      * Creates new form mainUI
      */
@@ -56,11 +103,13 @@ public class mainUI extends javax.swing.JFrame {
         jDialog1 = new javax.swing.JDialog();
         editing_menu = new javax.swing.JFrame();
         image_label = new javax.swing.JLabel();
+        filter_chooser_drop_box = new javax.swing.JComboBox<>();
         back_to_menu = new javax.swing.JButton();
-        filter_1 = new javax.swing.JButton();
-        Filter_2 = new javax.swing.JButton();
-        filter_3 = new javax.swing.JButton();
-        filter_4 = new javax.swing.JButton();
+        discard_button = new javax.swing.JButton();
+        save_button = new javax.swing.JButton();
+        minus = new javax.swing.JButton();
+        plus = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         title = new javax.swing.JLabel();
         file_choice_button = new javax.swing.JButton();
@@ -75,7 +124,16 @@ public class mainUI extends javax.swing.JFrame {
         image_label.setMaximumSize(new java.awt.Dimension(920, 630));
         image_label.setMinimumSize(new java.awt.Dimension(100, 100));
         editing_menu.getContentPane().add(image_label);
-        image_label.setBounds(60, 100, 890, 520);
+        image_label.setBounds(20, 100, 890, 520);
+
+        filter_chooser_drop_box.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "BinarizeLinear", "Brightness", "Gamma", "Inversion", "Rectification", "Saturation", "Convolution", "BadBlurConvolution", "EdgeDetectConvolution", "EmbossConvolution", "SharpenConvolution" }));
+        filter_chooser_drop_box.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                filter_chooser_drop_boxActionPerformed(evt);
+            }
+        });
+        editing_menu.getContentPane().add(filter_chooser_drop_box);
+        filter_chooser_drop_box.setBounds(920, 140, 320, 30);
 
         back_to_menu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ui_elements/back_to_main.png"))); // NOI18N
         back_to_menu.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -91,31 +149,47 @@ public class mainUI extends javax.swing.JFrame {
         editing_menu.getContentPane().add(back_to_menu);
         back_to_menu.setBounds(20, 30, 230, 30);
 
-        filter_1.setText("Filter_1");
-        filter_1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                filter_1ActionPerformed(evt);
+        discard_button.setText("Discard");
+        discard_button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                discard_buttonMouseClicked(evt);
             }
         });
-        editing_menu.getContentPane().add(filter_1);
-        filter_1.setBounds(1050, 130, 110, 30);
+        editing_menu.getContentPane().add(discard_button);
+        discard_button.setBounds(1040, 250, 80, 30);
 
-        Filter_2.setText("Filter_2");
-        editing_menu.getContentPane().add(Filter_2);
-        Filter_2.setBounds(1050, 170, 110, 30);
-
-        filter_3.setText("Filter_3");
-        editing_menu.getContentPane().add(filter_3);
-        filter_3.setBounds(1050, 210, 110, 30);
-
-        filter_4.setText("Filter_4");
-        filter_4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                filter_4ActionPerformed(evt);
+        save_button.setText("Save");
+        save_button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                save_buttonMouseClicked(evt);
             }
         });
-        editing_menu.getContentPane().add(filter_4);
-        filter_4.setBounds(1050, 250, 110, 29);
+        editing_menu.getContentPane().add(save_button);
+        save_button.setBounds(1040, 330, 80, 30);
+
+        minus.setText("-");
+        minus.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                minusMouseClicked(evt);
+            }
+        });
+        editing_menu.getContentPane().add(minus);
+        minus.setBounds(1150, 200, 40, 30);
+
+        plus.setText("+");
+        plus.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                plusMouseClicked(evt);
+            }
+        });
+        editing_menu.getContentPane().add(plus);
+        plus.setBounds(970, 200, 40, 29);
+
+        jLabel2.setFont(new java.awt.Font("Lucida Console", 1, 18)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("Choose a filter");
+        editing_menu.getContentPane().add(jLabel2);
+        jLabel2.setBounds(990, 100, 280, 40);
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ui_elements/background_frosted.jpg"))); // NOI18N
         jLabel1.setText("jLabel1");
@@ -174,17 +248,12 @@ public class mainUI extends javax.swing.JFrame {
      */
     private void handle_editing_menu()
     {
-        Image img;
-        int img_width = 0;
-        int img_height = 0;
-        int new_img_width = 0;
-        int new_img_height = 0;
-        
+        Image img;        
         // open image file, analyze the sizes and try to fit
         try
         {
             loaded_original = ImageIO.read(new File(file_path));
-
+            filtered_image = loaded_original;
             img_width = loaded_original.getWidth();
             new_img_width = img_width;
             System.out.println("Log: Image width: " + new_img_width);
@@ -241,22 +310,17 @@ public class mainUI extends javax.swing.JFrame {
                 }
             }
             
-                //SET LABLE
+            //SET LABLE
             Dimension size = new Dimension(maximum_preview_width, maximum_preview_height);
             image_label.setSize(size);
 
             image_label.setLayout(new GridBagLayout());
             
-            ImageIcon imag = new ImageIcon(file_path);
-            Image image = imag.getImage(); // transform it 
+            original_icon = new ImageIcon(file_path);
+            Image image = original_icon.getImage(); // transform it 
             Image newimg = image.getScaledInstance(new_img_width, new_img_height,  java.awt.Image.SCALE_SMOOTH);
-            imag = new ImageIcon(newimg);
-            
-            JLabel label = new JLabel(imag);
-            label.setHorizontalAlignment(SwingConstants.CENTER);
-            label.setVerticalAlignment(SwingConstants.BOTTOM);
-            //image_label.add(label);
-            image_label.setIcon(imag);
+            original_icon = new ImageIcon(newimg);
+            image_label.setIcon(original_icon);
         }
         catch (IOException ex)
         {
@@ -332,14 +396,6 @@ public class mainUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_start_buttonMouseClicked
 
-    private void filter_4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filter_4ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_filter_4ActionPerformed
-
-    private void filter_1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filter_1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_filter_1ActionPerformed
-
     private void back_to_menuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_back_to_menuActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_back_to_menuActionPerformed
@@ -356,6 +412,292 @@ public class mainUI extends javax.swing.JFrame {
         this.setVisible(true);
         image_label.removeAll();
     }//GEN-LAST:event_back_to_menuMouseClicked
+
+    /**
+     * Do action on select list for filter choices
+     * @param evt 
+     */
+    private void filter_chooser_drop_boxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filter_chooser_drop_boxActionPerformed
+       
+       //drop filter clicks and intensity back to 0 
+       clicks = 0;
+       filter_level = 0.0f;
+       
+       String chosen_filter = filter_chooser_drop_box.getSelectedItem().toString();
+       System.out.println("Log: We chose " + chosen_filter);
+       
+       if (chosen_filter.equals("Brightness"))
+       {
+           currentFilter = brightness;
+       }
+       else if (chosen_filter.equals("Gamma"))
+       {
+           currentFilter = gamma;    
+       }
+       else if (chosen_filter.equals("Inversion"))
+       {
+           currentFilter = inverse;      
+       }
+       else if (chosen_filter.equals("Rectification"))
+       {
+           currentFilter = rectification;   
+       }
+       else if (chosen_filter.equals("Saturation"))
+       {
+           currentFilter = saturation;         
+       }
+       else if (chosen_filter.equals("Convolution"))
+       {
+           currentFilter = convolution;        
+       }
+       else if (chosen_filter.equals("BadBlurConvolution"))
+       {
+           currentFilter = badblur;       
+       }
+       else if (chosen_filter.equals("EdgeDetectConvolution"))
+       {
+           currentFilter = edgedetect;         
+       }
+       else if (chosen_filter.equals("EmbossConvolution"))
+       {
+           currentFilter = emboss;         
+       }
+       else if (chosen_filter.equals("SharpenConvolution"))
+       {
+           currentFilter = sharpen;        
+       }
+       else if (chosen_filter.equals("BinarizeLinear"))
+       {
+           currentFilter = binarize;
+       }
+       
+    }//GEN-LAST:event_filter_chooser_drop_boxActionPerformed
+
+    /**
+     * Refresh the preview image
+     */
+    private void refreshPreview(BufferedImage new_Image)
+    {
+        ImageRW.saveImage(new_Image, "temp");
+        System.out.println("Log: Preview refreshed");
+       
+        Dimension size = new Dimension(maximum_preview_width, maximum_preview_height);
+        image_label.setSize(size);
+        image_label.setLayout(new GridBagLayout());
+        ImageIcon icon = new ImageIcon("temp.png");
+        Image image = icon.getImage(); // transform it 
+        Image newimg = image.getScaledInstance(new_img_width, new_img_height,  java.awt.Image.SCALE_SMOOTH);
+        icon = new ImageIcon(newimg);
+        image_label.setIcon(icon);
+
+    }
+    
+    /**
+     * Handle discard event
+     * @param evt 
+     */
+    private void discard_buttonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_discard_buttonMouseClicked
+        // TODO add your handling code here:
+        System.out.println("Log: Cancelling all changes..");
+        image_label.setIcon(original_icon);
+        try {
+            filtered_image = ImageIO.read(new File(file_path));
+        } catch (IOException ex) {
+            Logger.getLogger(mainUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        try {
+            loaded_original = ImageIO.read(new File(file_path));
+        } catch (IOException ex) {
+            Logger.getLogger(mainUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        clicks = 1;
+        filter_level = 0.0f;
+        System.out.println("Log: Cancelling all changes..DONE");
+        
+    }//GEN-LAST:event_discard_buttonMouseClicked
+
+    /**
+     * Handler to increase or decrease the filter application on the image.
+     * Includes preview updates.
+     * @param evt 
+     */
+    private void plusMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_plusMouseClicked
+        
+        Filter filt;
+        JButton b = null;
+        String sign = "";
+          
+        Object clicked_obj = evt.getSource();
+        
+        if(clicked_obj instanceof JButton)
+        {
+            b = (JButton)clicked_obj;
+        }
+        
+        if(b != null)
+        {
+           sign = b.getText();
+        }
+        
+        if(sign.equals("+"))
+        {
+            filter_level = filter_level + intensity;
+        }
+        else
+        {
+            filter_level = filter_level - intensity;
+        }
+        
+        // Default is no level is provided
+        if (filter_level == 0.0f)
+        {
+            refreshPreview(loaded_original);
+        }
+
+        if(currentFilter == brightness)
+        {
+            filt = new BrightnessLinearFilter(THREAD_NUM, filter_level);
+            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+            BufferedImage image_out = filteredImage.getFilteredImage();
+            filtered_image = image_out;
+            
+            System.out.println("Log: Applied brightness filter!");
+            refreshPreview(image_out);
+        }
+        
+        if(currentFilter == gamma)
+        {
+            filt = new GammaCorrectionLinearFilter(THREAD_NUM, filter_level);
+            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+            BufferedImage image_out = filteredImage.getFilteredImage();
+            filtered_image = image_out;
+            
+            System.out.println("Log: Applied gamma filter!");
+            refreshPreview(image_out);
+        }
+        
+        if(currentFilter == inverse)
+        {
+            filt = new InversionLinearFilter(THREAD_NUM, filter_level);
+            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+            BufferedImage image_out = filteredImage.getFilteredImage();
+            filtered_image = image_out;
+            
+            System.out.println("Log: Applied inversion filter!");
+            refreshPreview(image_out);
+        }
+        
+        if(currentFilter == rectification)
+        {
+            filt = new RectificationLinearFilter(THREAD_NUM,filter_level);
+            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+            BufferedImage image_out = filteredImage.getFilteredImage();
+            filtered_image = image_out;
+            
+            System.out.println("Log: Applied rectification filter!");
+            refreshPreview(image_out);
+        }
+        
+//        if(currentFilter == saturation)
+//        {
+//            filt = new SaturationLinearFilter(THREAD_NUM,filter_level);
+//            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+//            BufferedImage image_out = filteredImage.getFilteredImage();
+//            filtered_image = image_out;
+//            
+//            System.out.println("Log: Applied rectification filter!");
+//            refreshPreview(image_out);
+//        }
+
+        if(currentFilter == badblur)
+        {
+            filt = new BadBlurConvolutionFilter(THREAD_NUM,filter_level);
+            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+            BufferedImage image_out = filteredImage.getFilteredImage();
+            filtered_image = image_out;
+            
+            System.out.println("Log: Applied bad blur filter!");
+            refreshPreview(image_out);
+        }
+        
+        if(currentFilter == edgedetect)
+        {
+            filt = new EdgeDetectConvolutionFilter(THREAD_NUM,filter_level);
+            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+            BufferedImage image_out = filteredImage.getFilteredImage();
+            filtered_image = image_out;
+            
+            System.out.println("Log: Applied edge detect filter!");
+            refreshPreview(image_out);
+        }
+        
+        if(currentFilter == emboss)
+        {
+            filt = new EmbossConvolutionFilter(THREAD_NUM,filter_level);
+            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+            BufferedImage image_out = filteredImage.getFilteredImage();
+            filtered_image = image_out;
+            
+            System.out.println("Log: Applied emboss filter!");
+            refreshPreview(image_out);
+        }
+        
+        if(currentFilter == sharpen)
+        {
+            filt = new SharpenConvolutionFilter(THREAD_NUM,filter_level);
+            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+            BufferedImage image_out = filteredImage.getFilteredImage();
+            filtered_image = image_out;
+            
+            System.out.println("Log: Applied sharpening filter!");
+            refreshPreview(image_out);
+        }
+            
+        if(currentFilter == convolution)
+        {
+            filt = new DefaultConvolutionFilter(THREAD_NUM);
+            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+            BufferedImage image_out = filteredImage.getFilteredImage();
+            filtered_image = image_out;
+            
+            System.out.println("Log: Applied simple convolution filter!");
+            refreshPreview(image_out);
+        }
+        if(currentFilter == binarize)
+        {
+            filt = new BinarizeLinearFilter(THREAD_NUM, filter_level);
+            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+            BufferedImage image_out = filteredImage.getFilteredImage();
+            filtered_image = image_out;
+            
+            System.out.println("Log: Applied binarize filter!");
+            refreshPreview(image_out);
+        }
+        
+                 
+         clicks++;
+    }//GEN-LAST:event_plusMouseClicked
+
+    /**
+     * Handler for image saver.
+     * @param evt 
+     */
+    private void save_buttonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_save_buttonMouseClicked
+        
+        String file_name_to_save = file_path.substring(0, file_path.lastIndexOf('.')) + "_filtered";
+        ImageRW.saveImage(filtered_image, file_name_to_save);
+        System.out.println("Log: Saved image!");
+        JOptionPane.showMessageDialog(rootPane, "Filtered image saved successfully at " + file_name_to_save + ".png");
+    }//GEN-LAST:event_save_buttonMouseClicked
+    
+    /**
+     * Reuse the existing mouse clicker but with different event to signal a pressed '-'
+     * @param evt 
+     */
+    private void minusMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_minusMouseClicked
+        plusMouseClicked(evt);
+    }//GEN-LAST:event_minusMouseClicked
     
     /**
      * @param args the command line arguments
@@ -393,17 +735,19 @@ public class mainUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton Filter_2;
     private javax.swing.JButton back_to_menu;
     private javax.swing.JLabel bg;
+    private javax.swing.JButton discard_button;
     private javax.swing.JFrame editing_menu;
     private javax.swing.JButton file_choice_button;
-    private javax.swing.JButton filter_1;
-    private javax.swing.JButton filter_3;
-    private javax.swing.JButton filter_4;
+    private javax.swing.JComboBox<String> filter_chooser_drop_box;
     private javax.swing.JLabel image_label;
     private javax.swing.JDialog jDialog1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JButton minus;
+    private javax.swing.JButton plus;
+    private javax.swing.JButton save_button;
     private javax.swing.JButton start_button;
     private javax.swing.JTextField text_field;
     private javax.swing.JLabel title;
