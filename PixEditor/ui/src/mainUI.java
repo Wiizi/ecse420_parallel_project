@@ -17,6 +17,7 @@ import filters.linear_filters.GammaCorrectionLinearFilter;
 import filters.linear_filters.InversionLinearFilter;
 import filters.linear_filters.RectificationLinearFilter;
 import filters.linear_filters.BinarizeLinearFilter;
+import filters.linear_filters.HSLLinearFilter;
 import filters.convolution_filters.BadBlurConvolutionFilter;
 import filters.convolution_filters.EdgeDetectConvolutionFilter;
 import filters.convolution_filters.EmbossConvolutionFilter;
@@ -45,8 +46,8 @@ public class mainUI extends javax.swing.JFrame {
      */
     
     public int THREAD_NUM = 4;
+    public float intensity = 0.25f;
     
-    public float intensity = 1f;
     //Filter codes
     public int brightness = 0;
     public int gamma = 1;
@@ -58,26 +59,27 @@ public class mainUI extends javax.swing.JFrame {
     public int edgedetect = 7;
     public int emboss = 8;
     public int sharpen = 9;
-    public int binarize = 10;
+    public int binarize = -1;
     
+     /**
+     * General properties for image processing
+     * Keep track of original image loaded as well as the filtered image loaded
+     */
     public String file_path = null;
-    
     public int maximum_preview_height = 630; 
-    
-    public int maximum_preview_width = 920; 
-    
+    public int maximum_preview_width = 920;
+    public BufferedImage original;
     public BufferedImage loaded_original;
-    
     public BufferedImage filtered_image;
     
     int currentFilter;
-    
     ImageIcon original_icon;
-    
     public int clicks;
-    
     float filter_level = 0.0f;
 
+    /**
+     * Image property constants 
+     */
     int img_width;
     int img_height;
     int new_img_width;
@@ -249,11 +251,14 @@ public class mainUI extends javax.swing.JFrame {
     private void handle_editing_menu()
     {
         Image img;        
+        
         // open image file, analyze the sizes and try to fit
         try
-        {
+        {   
+            //Frst load of the image
             loaded_original = ImageIO.read(new File(file_path));
             filtered_image = loaded_original;
+            original = loaded_original;
             img_width = loaded_original.getWidth();
             new_img_width = img_width;
             System.out.println("Log: Image width: " + new_img_width);
@@ -261,10 +266,12 @@ public class mainUI extends javax.swing.JFrame {
             new_img_height = img_height;
             System.out.println("Log: Image height: " + new_img_height);
             
-            //avoid overfilling the page, keep the sizes smaller than thresholds 
-            //decision is made on mutually exclusive cases
+            //Avoid overfilling the page, keep the sizes smaller than thresholds 
+            //Decision is made on mutually exclusive cases
             if (img_width > maximum_preview_width || img_height > maximum_preview_height)
             {
+                
+                //Resize the preview image according to width
                 if(img_width > maximum_preview_width && !(img_height > maximum_preview_height))
                 {
                     System.out.println("Log: Image too big for preview, resizing based on width!");
@@ -273,6 +280,8 @@ public class mainUI extends javax.swing.JFrame {
                     new_img_width = (int) ((int) img_width * remainder);
                     new_img_height = (int) ((int) img_height * remainder);
                 }
+                
+                 //Resize the preview image according to height
                 else if (img_height > maximum_preview_height && !(img_width > maximum_preview_width))
                 {
                     System.out.println("Log: Image too big for preview, resizing! base on height");
@@ -281,23 +290,25 @@ public class mainUI extends javax.swing.JFrame {
                     new_img_width = (int) ((int) img_width * remainder);
                     new_img_height = (int) ((int) img_height * remainder);
                 }
+                
+                 //Resize the preview image according to both width and height
                 else if (img_height > maximum_preview_height && img_width > maximum_preview_width)
                 {
                     System.out.println("Log: Image too big for preview, resizing! base on height AND width");
                     double proportion_width = (double)img_width/(double)maximum_preview_width;
                     System.out.println("Log: Prop width:" + proportion_width);
-
                     double proportion_height = (double)img_height/(double)maximum_preview_height;
                     System.out.println("Log: Prop height:" + proportion_height);
 
 
-                    
+                    // Select the proportion necessary for resizing
                     double biggest = proportion_width;
                     if (proportion_width<proportion_height)
                     {
                         biggest = proportion_height;
                     }
                     
+                    //Set the newly calculated image height and width
                     System.out.println("Biggest prop chosen: " + biggest);
                     double remainder = biggest - 1;
                     remainder = 1 - remainder;
@@ -310,17 +321,19 @@ public class mainUI extends javax.swing.JFrame {
                 }
             }
             
-            //SET LABLE
+            //Set the preview image here before switching to editing menu
             Dimension size = new Dimension(maximum_preview_width, maximum_preview_height);
             image_label.setSize(size);
-
             image_label.setLayout(new GridBagLayout());
-            
             original_icon = new ImageIcon(file_path);
             Image image = original_icon.getImage(); // transform it 
             Image newimg = image.getScaledInstance(new_img_width, new_img_height,  java.awt.Image.SCALE_SMOOTH);
             original_icon = new ImageIcon(newimg);
             image_label.setIcon(original_icon);
+            
+            //Set default filter as first filter in the list
+            currentFilter = binarize;
+            filter_level = 0.5f;
         }
         catch (IOException ex)
         {
@@ -343,7 +356,8 @@ public class mainUI extends javax.swing.JFrame {
      * @param evt 
      */
     private void file_choice_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_file_choice_buttonActionPerformed
-        // TODO add your handling code here:
+        
+        //Get the image path necessary for the loading
         System.out.println("Log: Choosing an image....");
         JFileChooser chooser = new JFileChooser();
         chooser.showOpenDialog(null);
@@ -360,9 +374,14 @@ public class mainUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_file_choice_buttonActionPerformed
 
+    /**
+     * Handler for the main editing menu.
+     * @param evt 
+     */
     private void start_buttonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_start_buttonMouseClicked
-        // TODO add your handling code here:
-
+        
+        //Cant continue if image file path is not valid
+        //Check for valid extention as well
         if(file_path != null)
         {
             String[] tokens = file_path.split("\\.(?=[^\\.]+$)");
@@ -377,7 +396,8 @@ public class mainUI extends javax.swing.JFrame {
                 System.out.println("Log: Image chosen @ " + file_path);
    
             }
-
+            
+            //Proceed only and only if the extention is PNG
             if(is_a_png)
             {
                 System.out.println("Log: Valid file, proceed to filtering!");
@@ -426,49 +446,60 @@ public class mainUI extends javax.swing.JFrame {
        String chosen_filter = filter_chooser_drop_box.getSelectedItem().toString();
        System.out.println("Log: We chose " + chosen_filter);
        
+       //Set active filter as brightness filter
        if (chosen_filter.equals("Brightness"))
        {
            currentFilter = brightness;
        }
+       //Set active filter as gamma filter
        else if (chosen_filter.equals("Gamma"))
        {
            currentFilter = gamma;    
        }
+       //Set active filter as inversion filter
        else if (chosen_filter.equals("Inversion"))
        {
            currentFilter = inverse;      
        }
+       //Set active filter as rectification filter
        else if (chosen_filter.equals("Rectification"))
        {
            currentFilter = rectification;   
        }
+       //Set active filter as saturation filter
        else if (chosen_filter.equals("Saturation"))
        {
            currentFilter = saturation;         
        }
+       //Set active filter as convolution filter
        else if (chosen_filter.equals("Convolution"))
        {
            currentFilter = convolution;        
        }
+       //Set active filter as badblur filter
        else if (chosen_filter.equals("BadBlurConvolution"))
        {
-           currentFilter = badblur;       
+           currentFilter = badblur;
        }
+       //Set active filter as edge detect filter
        else if (chosen_filter.equals("EdgeDetectConvolution"))
        {
            currentFilter = edgedetect;         
        }
+       //Set active filter as emboss filter
        else if (chosen_filter.equals("EmbossConvolution"))
        {
            currentFilter = emboss;         
        }
+       //Set active filter as sharpen filter
        else if (chosen_filter.equals("SharpenConvolution"))
        {
            currentFilter = sharpen;        
        }
+       //Set active filter as binarize filter
        else if (chosen_filter.equals("BinarizeLinear"))
        {
-           currentFilter = binarize;
+            currentFilter = binarize;
        }
        
     }//GEN-LAST:event_filter_chooser_drop_boxActionPerformed
@@ -478,6 +509,8 @@ public class mainUI extends javax.swing.JFrame {
      */
     private void refreshPreview(BufferedImage new_Image)
     {
+        if(new_Image != loaded_original)
+        {
         ImageRW.saveImage(new_Image, "temp");
         System.out.println("Log: Preview refreshed");
        
@@ -489,6 +522,11 @@ public class mainUI extends javax.swing.JFrame {
         Image newimg = image.getScaledInstance(new_img_width, new_img_height,  java.awt.Image.SCALE_SMOOTH);
         icon = new ImageIcon(newimg);
         image_label.setIcon(icon);
+        }
+        else
+        {
+            image_label.setIcon(original_icon); 
+        }
 
     }
     
@@ -511,7 +549,7 @@ public class mainUI extends javax.swing.JFrame {
             Logger.getLogger(mainUI.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        clicks = 1;
+        clicks = 0;
         filter_level = 0.0f;
         System.out.println("Log: Cancelling all changes..DONE");
         
@@ -527,9 +565,12 @@ public class mainUI extends javax.swing.JFrame {
         Filter filt;
         JButton b = null;
         String sign = "";
+        
+        boolean limitTrigered = false;
           
         Object clicked_obj = evt.getSource();
         
+        //Getting the instance of the button pressed (either - or +)
         if(clicked_obj instanceof JButton)
         {
             b = (JButton)clicked_obj;
@@ -540,6 +581,7 @@ public class mainUI extends javax.swing.JFrame {
            sign = b.getText();
         }
         
+        //Depending on the sign, increase filter intensity or decrease filter intensity
         if(sign.equals("+"))
         {
             filter_level = filter_level + intensity;
@@ -549,111 +591,288 @@ public class mainUI extends javax.swing.JFrame {
             filter_level = filter_level - intensity;
         }
         
-        // Default is no level is provided
-        if (filter_level == 0.0f)
-        {
-            refreshPreview(loaded_original);
-        }
+        System.out.println("Log: Filter level: " + String.valueOf(filter_level));
+        
+        long startTime = System.currentTimeMillis();
 
+        //Brightness filter handler
         if(currentFilter == brightness)
         {
-            filt = new BrightnessLinearFilter(THREAD_NUM, filter_level);
-            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
-            BufferedImage image_out = filteredImage.getFilteredImage();
-            filtered_image = image_out;
             
-            System.out.println("Log: Applied brightness filter!");
-            refreshPreview(image_out);
+            if (filter_level == 0.0f)
+            {
+                refreshPreview(loaded_original);
+            }
+
+            else if (filter_level < -1.0f)
+            {
+                JOptionPane.showMessageDialog(rootPane, "Reached minimum Brightness value!");
+                filter_level = -1.0f;
+                limitTrigered = true;
+            }
+            else if(filter_level > 1.0f)
+            {
+                JOptionPane.showMessageDialog(rootPane, "Reached maximum Brightness value!");
+                filter_level = 1.0f;
+                limitTrigered = true;
+            }
+            else
+            {
+                System.out.println("Log: Brightness filter level: " + String.valueOf(filter_level));
+
+                filt = new BrightnessLinearFilter(THREAD_NUM, filter_level);
+                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                BufferedImage image_out = filteredImage.getFilteredImage();
+                filtered_image = image_out;
+
+                System.out.println("Log: Applied brightness filter!");
+                refreshPreview(image_out);
+            }
         }
         
+        //Gamma filter handler
         if(currentFilter == gamma)
         {
-            filt = new GammaCorrectionLinearFilter(THREAD_NUM, filter_level);
-            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
-            BufferedImage image_out = filteredImage.getFilteredImage();
-            filtered_image = image_out;
-            
-            System.out.println("Log: Applied gamma filter!");
-            refreshPreview(image_out);
+            if (filter_level == 0.0f)
+            {
+                refreshPreview(loaded_original);
+                System.out.println("Log: DEFAULT LEVEL)");
+                
+            }
+                        
+            else if (filter_level < -1.0f)
+            {
+                JOptionPane.showMessageDialog(rootPane, "Reached minimum Gamma value!");
+                filter_level = -1.0f;
+                limitTrigered = true;
+            }
+            else if(filter_level > 1.0f)
+            {
+                JOptionPane.showMessageDialog(rootPane, "Reached maximum Gamma value!");
+                filter_level = 1.0f;
+                limitTrigered = true;
+            }
+            else
+            {
+                System.out.println("Log: Gamma filter level: " + String.valueOf(filter_level));
+                filt = new GammaCorrectionLinearFilter(THREAD_NUM, filter_level);
+                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                BufferedImage image_out = filteredImage.getFilteredImage();
+                filtered_image = image_out;
+                System.out.println("Log: Applied gamma filter!");
+                refreshPreview(image_out);
+            }
         }
         
+        //Inverse filter handler
         if(currentFilter == inverse)
-        {
-            filt = new InversionLinearFilter(THREAD_NUM, filter_level);
-            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
-            BufferedImage image_out = filteredImage.getFilteredImage();
-            filtered_image = image_out;
-            
-            System.out.println("Log: Applied inversion filter!");
-            refreshPreview(image_out);
+        {                        
+            if (filter_level == 0.0f || filter_level < 0.0f)
+            {
+                refreshPreview(loaded_original);
+                
+                if (clicks !=0)
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Reached minimum Inverse value!");
+                }
+                filter_level = 0.0f;
+                limitTrigered = true;
+            }
+            else if(filter_level > 1.0f)
+            {
+                JOptionPane.showMessageDialog(rootPane, "Reached maximum Inverse value!");
+                filter_level = 1.0f;
+                limitTrigered = true;
+            }
+            else
+            {
+                System.out.println("Log: Inverse filter level: " + String.valueOf(filter_level));
+                filt = new InversionLinearFilter(THREAD_NUM, filter_level);
+                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                BufferedImage image_out = filteredImage.getFilteredImage();
+                filtered_image = image_out;
+                System.out.println("Log: Applied inversion filter!");
+                refreshPreview(image_out);
+            }
         }
         
+        //Rectification filter handler
         if(currentFilter == rectification)
         {
-            filt = new RectificationLinearFilter(THREAD_NUM,filter_level);
+            if (filter_level == 0.0f || filter_level < 0.0f)
+            {
+                refreshPreview(loaded_original);
+                
+                if (clicks !=0)
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Reached minimum Rectification value!");
+                }
+                filter_level = 0.0f;
+                limitTrigered = true;
+            }
+            else if(filter_level > 1.0f)
+            {
+                JOptionPane.showMessageDialog(rootPane, "Reached maximum Rectification value!");
+                filter_level = 1.0f;
+                limitTrigered = true;
+            }
+            else
+            {
+                System.out.println("Log: Rectification filter level: " + String.valueOf(filter_level));
+                filt = new RectificationLinearFilter(THREAD_NUM,filter_level);
+                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                BufferedImage image_out = filteredImage.getFilteredImage();
+                filtered_image = image_out;
+                System.out.println("Log: Applied rectification filter!");
+                refreshPreview(image_out);
+            }
+        }
+        
+        //Saturation filter handler
+        if(currentFilter == saturation)
+        {
+            float hue = filter_level;
+            float satur = 0.0f;
+            float lightness = 0.0f;
+            
+            filt = new HSLLinearFilter(THREAD_NUM,hue,satur,lightness);
             FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
             BufferedImage image_out = filteredImage.getFilteredImage();
             filtered_image = image_out;
             
-            System.out.println("Log: Applied rectification filter!");
+            System.out.println("Log: Applied Saturation filter!");
             refreshPreview(image_out);
         }
-        
-//        if(currentFilter == saturation)
-//        {
-//            filt = new SaturationLinearFilter(THREAD_NUM,filter_level);
-//            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
-//            BufferedImage image_out = filteredImage.getFilteredImage();
-//            filtered_image = image_out;
-//            
-//            System.out.println("Log: Applied rectification filter!");
-//            refreshPreview(image_out);
-//        }
 
+        //Badblur filter handler
         if(currentFilter == badblur)
         {
-            filt = new BadBlurConvolutionFilter(THREAD_NUM,filter_level);
-            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
-            BufferedImage image_out = filteredImage.getFilteredImage();
-            filtered_image = image_out;
-            
-            System.out.println("Log: Applied bad blur filter!");
-            refreshPreview(image_out);
+            if (filter_level == 0.0f || filter_level < 0.0f)
+            {
+                refreshPreview(loaded_original);
+                
+                if (clicks !=0)
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Reached minimum Blur value!");
+                }
+                filter_level = 0.0f;
+                limitTrigered = true;
+            }
+            else if(filter_level > 5.0f)
+            {
+                JOptionPane.showMessageDialog(rootPane, "Reached maximum Blur value!");
+                filter_level = 5.0f;
+                limitTrigered = true;
+            }
+            else
+            {
+                System.out.println("Log: Blur filter level: " + String.valueOf(filter_level));
+                filt = new BadBlurConvolutionFilter(THREAD_NUM,filter_level);
+                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                BufferedImage image_out = filteredImage.getFilteredImage();
+                filtered_image = image_out;
+                System.out.println("Log: Applied bad blur filter!");
+                refreshPreview(image_out);
+            }
         }
         
+        //Edgedetect filter handler
         if(currentFilter == edgedetect)
         {
-            filt = new EdgeDetectConvolutionFilter(THREAD_NUM,filter_level);
-            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
-            BufferedImage image_out = filteredImage.getFilteredImage();
-            filtered_image = image_out;
-            
-            System.out.println("Log: Applied edge detect filter!");
-            refreshPreview(image_out);
+            if (filter_level == 0.0f || filter_level < 0.0f)
+            {
+                refreshPreview(loaded_original);
+                
+                if (clicks !=0)
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Reached minimum Edge Detect value!");
+                }
+                filter_level = 0.0f;
+                limitTrigered = true;
+            }
+            else if(filter_level > 5.0f)
+            {
+                JOptionPane.showMessageDialog(rootPane, "Reached maximum Edge Detect value!");
+                filter_level = 5.0f;
+                limitTrigered = true;
+            }
+            else
+            {
+                System.out.println("Log: Edge Detect filter level: " + String.valueOf(filter_level));
+                filt = new EdgeDetectConvolutionFilter(THREAD_NUM,filter_level);
+                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                BufferedImage image_out = filteredImage.getFilteredImage();
+                filtered_image = image_out;
+                System.out.println("Log: Applied edge detect filter!");
+                refreshPreview(image_out);
+            }
         }
         
+        //Currentfilter filter handler
         if(currentFilter == emboss)
         {
-            filt = new EmbossConvolutionFilter(THREAD_NUM,filter_level);
-            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
-            BufferedImage image_out = filteredImage.getFilteredImage();
-            filtered_image = image_out;
-            
-            System.out.println("Log: Applied emboss filter!");
-            refreshPreview(image_out);
+            if (filter_level == 0.0f || filter_level < 0.0f)
+            {
+                refreshPreview(loaded_original);
+                
+                if (clicks !=0)
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Reached minimum Emboss value!");
+                }
+                filter_level = 0.0f;
+                limitTrigered = true;
+            }
+            else if(filter_level > 5.0f)
+            {
+                JOptionPane.showMessageDialog(rootPane, "Reached maximum Emboss value!");
+                filter_level = 5.0f;
+                limitTrigered = true;
+            }
+            else
+            {
+                System.out.println("Log: Emboss filter level: " + String.valueOf(filter_level));
+                filt = new EmbossConvolutionFilter(THREAD_NUM,filter_level);
+                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                BufferedImage image_out = filteredImage.getFilteredImage();
+                filtered_image = image_out;
+                System.out.println("Log: Applied emboss filter!");
+                refreshPreview(image_out);
+            }
         }
         
+        //Sharpen filter handler
         if(currentFilter == sharpen)
         {
-            filt = new SharpenConvolutionFilter(THREAD_NUM,filter_level);
-            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
-            BufferedImage image_out = filteredImage.getFilteredImage();
-            filtered_image = image_out;
-            
-            System.out.println("Log: Applied sharpening filter!");
-            refreshPreview(image_out);
+            if (filter_level == 0.0f || filter_level < 0.0f)
+            {
+                refreshPreview(loaded_original);
+                
+                if (clicks !=0)
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Reached minimum Sharpening value!");
+                }
+                filter_level = 0.0f;
+                limitTrigered = true;
+            }
+            else if(filter_level > 5.0f)
+            {
+                JOptionPane.showMessageDialog(rootPane, "Reached maximum Sharpening value!");
+                filter_level = 5.0f;
+                limitTrigered = true;
+            }
+            else
+            {
+                System.out.println("Log: Sharpen filter level: " + String.valueOf(filter_level));
+                filt = new SharpenConvolutionFilter(THREAD_NUM,filter_level);
+                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                BufferedImage image_out = filteredImage.getFilteredImage();
+                filtered_image = image_out;
+                System.out.println("Log: Applied sharpening filter!");
+                refreshPreview(image_out);
+            }
         }
-            
+        
+        //Convolution filter handler
         if(currentFilter == convolution)
         {
             filt = new DefaultConvolutionFilter(THREAD_NUM);
@@ -664,19 +883,47 @@ public class mainUI extends javax.swing.JFrame {
             System.out.println("Log: Applied simple convolution filter!");
             refreshPreview(image_out);
         }
+        
+        //Binarize filter handler
         if(currentFilter == binarize)
         {
-            filt = new BinarizeLinearFilter(THREAD_NUM, filter_level);
-            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
-            BufferedImage image_out = filteredImage.getFilteredImage();
-            filtered_image = image_out;
-            
-            System.out.println("Log: Applied binarize filter!");
-            refreshPreview(image_out);
+            if (filter_level == 0.0f || filter_level < 0.0f)
+            {
+                refreshPreview(loaded_original);
+                
+                if (clicks !=0)
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Reached minimum Binarize value!");
+                }
+                filter_level = 0.0f;
+                limitTrigered = true;
+            }
+            else if(filter_level > 1.0f)
+            {
+                JOptionPane.showMessageDialog(rootPane, "Reached maximum Binarize value!");
+                filter_level = 1.0f;
+                limitTrigered = true;
+            }
+            else
+            {
+                System.out.println("Log: Binarize filter level: " + String.valueOf(filter_level));
+                filt = new BinarizeLinearFilter(THREAD_NUM, filter_level);
+                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                BufferedImage image_out = filteredImage.getFilteredImage();
+                filtered_image = image_out;
+                System.out.println("Log: Applied binarize filter!");
+                refreshPreview(image_out);
+            }
         }
-        
-                 
+                
          clicks++;
+         if(!limitTrigered)
+         {
+            long estimatedTime = System.currentTimeMillis() - startTime;
+            JOptionPane.showMessageDialog(rootPane, "Filter application took " + String.valueOf(estimatedTime) + " ms.");
+         }
+         limitTrigered = false;
+         
     }//GEN-LAST:event_plusMouseClicked
 
     /**
