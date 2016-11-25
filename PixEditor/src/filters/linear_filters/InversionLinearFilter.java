@@ -25,9 +25,8 @@ public class InversionLinearFilter extends LinearFilter{
         return val;
     }
     public int invertChannel(int val){
-        if (val <= threshold)
-            return (int)(255 - val);
-        else
-            return val;
+        if (val < threshold)
+            val = (int)(255 - val);
+        return clamp(val);
     }
 }

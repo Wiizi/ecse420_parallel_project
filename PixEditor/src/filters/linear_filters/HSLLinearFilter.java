@@ -7,9 +7,9 @@ public class HSLLinearFilter extends LinearFilter{
     private float hue, saturation, lightness;
     public HSLLinearFilter(int number_of_threads, float hue, float saturation, float lightness){
         this.number_of_threads = number_of_threads;
-        this.hue = hue - 1f;
-        this.saturation = saturation - 1f;
-        this.lightness = lightness - 1f;
+        this.hue = hue;
+        this.saturation = saturation;
+        this.lightness = lightness;
     }
 
     @Override
@@ -22,17 +22,16 @@ public class HSLLinearFilter extends LinearFilter{
         hsl[0] += this.hue * 360;
         hsl[1] += this.saturation * 255;
         hsl[2] += this.lightness * 255;
-        // clamp
+        // pre clamp
         hsl[0] = (hsl[0] < 0) ? 0 : hsl[0];
-        hsl[1] = (hsl[1] < 0) ? 0 : hsl[1];
-        hsl[2] = (hsl[2] < 0) ? 0 : hsl[2];
         hsl[0] %= 360;
-        hsl[1] = (hsl[1] > 255) ? 255 : hsl[1];
-        hsl[2] = (hsl[2] > 255) ? 255 : hsl[2];
+        hsl[1] = clamp(hsl[1]);
+        hsl[2] = clamp(hsl[2]);
         int rgb[] = convertHSLToRGB(hsl[0], hsl[1], hsl[2]);
-        r = rgb[0];
-        g = rgb[1];
-        b = rgb[2];
+        // post clamp
+        r = clamp(rgb[0]);
+        g = clamp(rgb[1]);
+        b = clamp(rgb[2]);
         val = ( a << 24 ) | ( r << 16 ) | ( g << 8 ) | b;
         return val;
     }
@@ -129,9 +128,9 @@ public class HSLLinearFilter extends LinearFilter{
                 b = temp1;
         }
         int rval, gval, bval;
-        rval = (int)(r * 255.0f);
-        gval = (int)(g * 255.0f);
-        bval = (int)(b * 255.0f);
+        rval = clamp((int)(r * 255.0f));
+        gval = clamp((int)(g * 255.0f));
+        bval = clamp((int)(b * 255.0f));
         return new int[] {rval, gval, bval};
     }
 }

@@ -6,7 +6,7 @@ package filters.linear_filters;
 public class RectificationLinearFilter extends LinearFilter{
     private int rectification_threshold;
     public RectificationLinearFilter(int number_of_threads, float threshold){
-        this.rectification_threshold = (int) (127 * threshold);
+        this.rectification_threshold = (int) (127 * (threshold-1f));
         this.number_of_threads = number_of_threads;
     }
     @Override
@@ -28,6 +28,6 @@ public class RectificationLinearFilter extends LinearFilter{
         val -= rectification_threshold;
         val = (val >= 0) ? val : 0;
         val += rectification_threshold;
-        return val;
+        return clamp(val);
     }
 }

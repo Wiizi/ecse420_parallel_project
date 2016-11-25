@@ -7,7 +7,7 @@ public class GammaCorrectionLinearFilter extends LinearFilter{
     private float gamma_correction;
     public GammaCorrectionLinearFilter(int number_of_threads, float gamma_correction){
         this.number_of_threads = number_of_threads;
-        this.gamma_correction = 1.0f/gamma_correction;
+        this.gamma_correction = 1.0f/(gamma_correction+1f);
     }
     @Override
     public int applyFilterOnPixel(int val){
@@ -26,7 +26,7 @@ public class GammaCorrectionLinearFilter extends LinearFilter{
     }
 
     private int gammaCorrectChannel(int val){
-        return (int)(255 * (Math.pow(((float)val / 255.0), this.gamma_correction)));
+        return clamp((int)(255 * (Math.pow(((float)val / 255.0), this.gamma_correction))));
     }
 
 

@@ -17,4 +17,9 @@ public abstract class Filter {
     protected int getUnsignedByte(byte b){
         return ((b & 0b10000000) == 0b10000000) ? (b+255) : b;
     }
+    protected int clamp(int val){
+        val = (val < 0) ? 0 : val;
+        val = (val > 255) ? 255 : val;
+        return val;
+    }
 }
