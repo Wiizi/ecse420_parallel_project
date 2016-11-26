@@ -22,32 +22,32 @@ public abstract class LinearFilter extends Filter {
         width_in = image.getWidth();
         height_in = image.getHeight();
         total_pixels = width_in * height_in;
-        pixels_per_thread = total_pixels / (number_of_threads);
-        leftover = total_pixels - number_of_threads * pixels_per_thread;
+                pixels_per_thread = total_pixels / (number_of_threads);
+                leftover = total_pixels - number_of_threads * pixels_per_thread;
 
-        LinearFilterThread runnables[] = new LinearFilterThread[number_of_threads];
-        Thread threads[] = new Thread[number_of_threads];
+                LinearFilterThread runnables[] = new LinearFilterThread[number_of_threads];
+                Thread threads[] = new Thread[number_of_threads];
 
-        // set up thread args
-        for (int i = 0; i < number_of_threads && i < total_pixels; i++) {
-            runnables[i] = new LinearFilterThread(i,image, output_image, pixels_per_thread, pixels_per_thread * i);
-        }
-        //System.out.println("leftover " + leftover);
-        // if image length is not a multiple of number of threads there will be some leftover bits
-        if (leftover > 0){
-            runnables[0].length += leftover;
-            for (int i = 1; i < number_of_threads; i++) {
-                runnables[i].length_offset += leftover;
-            }
-        }
-        // start threads
-        for (int i = 0; i < number_of_threads; i++) {
-            threads[i] = new Thread(runnables[i]);
-            threads[i].start();
-        }
-        // join threads
-        for (int i = 0; i < number_of_threads; i++) {
-            try {
+                // set up thread args
+                for (int i = 0; i < number_of_threads && i < total_pixels; i++) {
+                    runnables[i] = new LinearFilterThread(i,image, output_image, pixels_per_thread, pixels_per_thread * i);
+                }
+                //System.out.println("leftover " + leftover);
+                // if image length is not a multiple of number of threads there will be some leftover bits
+                if (leftover > 0){
+                    runnables[0].length += leftover;
+                    for (int i = 1; i < number_of_threads; i++) {
+                        runnables[i].length_offset += leftover;
+                    }
+                }
+                // start threads
+                for (int i = 0; i < number_of_threads; i++) {
+                    threads[i] = new Thread(runnables[i]);
+                    threads[i].start();
+                }
+                // join threads
+                for (int i = 0; i < number_of_threads; i++) {
+                    try {
                 threads[i].join();
             } catch (InterruptedException e) {
                 e.printStackTrace();

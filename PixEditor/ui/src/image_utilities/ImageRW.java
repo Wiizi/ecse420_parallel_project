@@ -21,12 +21,10 @@ public class ImageRW {
     }
 
     public static void saveImage(BufferedImage image, String filename){
-        try 
-        {
+        try {
             File outputfile = new File(filename + ".png");
             ImageIO.write(image, "png", outputfile);
-        } catch (IOException e) 
-        {
+        } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
         }

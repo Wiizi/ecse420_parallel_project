@@ -116,17 +116,13 @@ public abstract class ConvolutionFilter extends Filter {
                         cB += weights[ii+radius][jj+radius] * getUnsignedByte(buffer_in.get(3));
                     }
                 }
-                cR = (cR < 0) ? 0 : cR;
-                cR = (cR > 255) ? 255 : cR;
-                cG = (cG < 0) ? 0 : cG;
-                cG = (cG > 255) ? 255 : cG;
-                cB = (cB < 0) ? 0 : cB;
-                cB = (cB > 255) ? 255 : cB;
+                cR = clamp(cR);
+                cG = clamp(cG);
+                cB = clamp(cB);
                 buffer_in.put(0, (byte)cA);
                 buffer_in.put(1, (byte)cR);
                 buffer_in.put(2, (byte)cG);
                 buffer_in.put(3, (byte)cB);
-
                 pixel_rgba = buffer_in.getInt(0);
                 output_buffer.setRGB(i,j, pixel_rgba);
                 i++;

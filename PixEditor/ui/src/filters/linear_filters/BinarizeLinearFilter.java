@@ -8,7 +8,7 @@ public class BinarizeLinearFilter extends LinearFilter {
 
     public BinarizeLinearFilter(int number_of_threads, float threshold) {
         this.number_of_threads = number_of_threads;
-        this.threshold = (int) (255 * 3 * (threshold-1f));
+        this.threshold = (int) (255 * 3 * (threshold));
     }
 
     @Override
