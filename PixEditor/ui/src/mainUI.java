@@ -78,13 +78,20 @@ public class mainUI extends javax.swing.JFrame {
     float filter_level = 0.0f;
 
     /**
-     * Image property constants 
+     * Image property constants and other global vars
      */
     int img_width;
     int img_height;
     int new_img_width;
     int new_img_height;
     boolean saved = false;
+    
+    float hue = 0.0f;
+    float satur = 0.0f;
+    float lightness = 0.0f;
+    boolean hue_selected = false;
+    boolean satur_selected = false;
+    boolean lightness_selected = false;
    
     /**
      * Creates new form mainUI
@@ -112,6 +119,12 @@ public class mainUI extends javax.swing.JFrame {
         minus = new javax.swing.JButton();
         plus = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
+        saturation_button = new javax.swing.JButton();
+        hue_button = new javax.swing.JButton();
+        lightness_button = new javax.swing.JButton();
+        time_box = new javax.swing.JTextField();
+        satur_msg = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         title = new javax.swing.JLabel();
         file_choice_button = new javax.swing.JButton();
@@ -135,7 +148,7 @@ public class mainUI extends javax.swing.JFrame {
             }
         });
         editing_menu.getContentPane().add(filter_chooser_drop_box);
-        filter_chooser_drop_box.setBounds(920, 140, 320, 30);
+        filter_chooser_drop_box.setBounds(930, 140, 320, 30);
 
         back_to_menu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ui_elements/back_to_main.png"))); // NOI18N
         back_to_menu.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -151,6 +164,7 @@ public class mainUI extends javax.swing.JFrame {
         editing_menu.getContentPane().add(back_to_menu);
         back_to_menu.setBounds(20, 30, 230, 30);
 
+        discard_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ui_elements/discard_button.png"))); // NOI18N
         discard_button.setText("Discard");
         discard_button.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -158,8 +172,9 @@ public class mainUI extends javax.swing.JFrame {
             }
         });
         editing_menu.getContentPane().add(discard_button);
-        discard_button.setBounds(1040, 250, 80, 30);
+        discard_button.setBounds(950, 470, 250, 30);
 
+        save_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ui_elements/save_button.png"))); // NOI18N
         save_button.setText("Save");
         save_button.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -167,8 +182,9 @@ public class mainUI extends javax.swing.JFrame {
             }
         });
         editing_menu.getContentPane().add(save_button);
-        save_button.setBounds(1040, 330, 80, 30);
+        save_button.setBounds(1020, 540, 110, 30);
 
+        minus.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ui_elements/rem.png"))); // NOI18N
         minus.setText("-");
         minus.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -176,8 +192,9 @@ public class mainUI extends javax.swing.JFrame {
             }
         });
         editing_menu.getContentPane().add(minus);
-        minus.setBounds(1150, 200, 40, 30);
+        minus.setBounds(1130, 250, 90, 30);
 
+        plus.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ui_elements/add.png"))); // NOI18N
         plus.setText("+");
         plus.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -185,20 +202,75 @@ public class mainUI extends javax.swing.JFrame {
             }
         });
         editing_menu.getContentPane().add(plus);
-        plus.setBounds(970, 200, 40, 29);
+        plus.setBounds(940, 250, 90, 30);
 
-        jLabel2.setFont(new java.awt.Font("Lucida Console", 1, 18)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Rockwell Extra Bold", 1, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Choose a filter");
         editing_menu.getContentPane().add(jLabel2);
         jLabel2.setBounds(990, 100, 280, 40);
 
+        saturation_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ui_elements/saturation_button.png"))); // NOI18N
+        saturation_button.setText("saturation");
+        saturation_button.setToolTipText("");
+        saturation_button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                saturation_buttonMouseClicked(evt);
+            }
+        });
+        editing_menu.getContentPane().add(saturation_button);
+        saturation_button.setBounds(1000, 310, 160, 30);
+
+        hue_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ui_elements/hue_button.png"))); // NOI18N
+        hue_button.setText("hue");
+        hue_button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                hue_buttonMouseClicked(evt);
+            }
+        });
+        editing_menu.getContentPane().add(hue_button);
+        hue_button.setBounds(1020, 410, 110, 30);
+
+        lightness_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ui_elements/lightness_button.png"))); // NOI18N
+        lightness_button.setText("lightness");
+        lightness_button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lightness_buttonMouseClicked(evt);
+            }
+        });
+        lightness_button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lightness_buttonActionPerformed(evt);
+            }
+        });
+        editing_menu.getContentPane().add(lightness_button);
+        lightness_button.setBounds(1020, 360, 110, 30);
+
+        time_box.setFont(new java.awt.Font("Consolas", 0, 18)); // NOI18N
+        editing_menu.getContentPane().add(time_box);
+        time_box.setBounds(990, 700, 180, 40);
+
+        satur_msg.setFont(new java.awt.Font("Rockwell Extra Bold", 0, 11)); // NOI18N
+        satur_msg.setForeground(new java.awt.Color(255, 255, 255));
+        satur_msg.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        satur_msg.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        editing_menu.getContentPane().add(satur_msg);
+        satur_msg.setBounds(920, 190, 330, 20);
+
+        jLabel3.setFont(new java.awt.Font("Rockwell Extra Bold", 0, 18)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel3.setText("Filter timing:");
+        jLabel3.setToolTipText("");
+        editing_menu.getContentPane().add(jLabel3);
+        jLabel3.setBounds(1010, 670, 220, 20);
+
+        jLabel1.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ui_elements/background_frosted.jpg"))); // NOI18N
         jLabel1.setText("jLabel1");
         jLabel1.setMaximumSize(new java.awt.Dimension(1280, 800));
         jLabel1.setMinimumSize(new java.awt.Dimension(1280, 800));
         editing_menu.getContentPane().add(jLabel1);
-        jLabel1.setBounds(0, 0, 1280, 800);
+        jLabel1.setBounds(0, -10, 1280, 820);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(1280, 800));
@@ -265,6 +337,12 @@ public class mainUI extends javax.swing.JFrame {
             img_height = loaded_original.getHeight();
             new_img_height = img_height;
             System.out.println("Log: Image height: " + new_img_height);
+            //Corner case of saturation filter remove buttons @launch
+            hue_button.setVisible(false);
+            saturation_button.setVisible(false);
+            lightness_button.setVisible(false);
+            satur_msg.setVisible(false);
+            
             
             //Avoid overfilling the page, keep the sizes smaller than thresholds 
             //Decision is made on mutually exclusive cases
@@ -446,6 +524,12 @@ public class mainUI extends javax.swing.JFrame {
        String chosen_filter = filter_chooser_drop_box.getSelectedItem().toString();
        System.out.println("Log: We chose " + chosen_filter);
        
+       //handle the corner case of saturation filter
+       hue_button.setVisible(false);
+       saturation_button.setVisible(false);
+       lightness_button.setVisible(false);
+       satur_msg.setVisible(false);
+       
        //Set active filter as brightness filter
        if (chosen_filter.equals("Brightness"))
        {
@@ -469,7 +553,15 @@ public class mainUI extends javax.swing.JFrame {
        //Set active filter as saturation filter
        else if (chosen_filter.equals("Saturation"))
        {
-           currentFilter = saturation;         
+           currentFilter = saturation;    
+           hue_button.setVisible(true);
+           saturation_button.setVisible(true);
+           lightness_button.setVisible(true);
+           satur_msg.setVisible(true);
+           hue_selected = false;
+           satur_selected = false;
+           lightness_selected = false;
+           satur_msg.setText("Select one of the three options below.");
        }
        //Set active filter as convolution filter
        else if (chosen_filter.equals("Convolution"))
@@ -501,7 +593,6 @@ public class mainUI extends javax.swing.JFrame {
        {
             currentFilter = binarize;
        }
-       
     }//GEN-LAST:event_filter_chooser_drop_boxActionPerformed
 
     /**
@@ -549,10 +640,23 @@ public class mainUI extends javax.swing.JFrame {
             Logger.getLogger(mainUI.class.getName()).log(Level.SEVERE, null, ex);
         }
         
+        time_box.setText("");
+        
+        if(currentFilter == saturation)
+        {
+            satur_msg.setText("Select one of the three options below.");
+        }
+        
         clicks = 0;
         filter_level = 0.0f;
-        System.out.println("Log: Cancelling all changes..DONE");
+        hue = 0.0f;
+        satur = 0.0f;
+        lightness = 0.0f;
+        hue_selected = false;
+        satur_selected = false;
+        lightness_selected = false;
         
+        System.out.println("Log: Cancelling all changes..DONE");    
     }//GEN-LAST:event_discard_buttonMouseClicked
 
     /**
@@ -565,7 +669,7 @@ public class mainUI extends javax.swing.JFrame {
         Filter filt;
         JButton b = null;
         String sign = "";
-        
+        BufferedImage to_filter =loaded_original;
         boolean limitTrigered = false;
           
         Object clicked_obj = evt.getSource();
@@ -585,10 +689,12 @@ public class mainUI extends javax.swing.JFrame {
         if(sign.equals("+"))
         {
             filter_level = filter_level + intensity;
+            to_filter = filtered_image;
         }
         else
         {
             filter_level = filter_level - intensity;
+            to_filter = loaded_original;
         }
         
         System.out.println("Log: Filter level: " + String.valueOf(filter_level));
@@ -621,7 +727,7 @@ public class mainUI extends javax.swing.JFrame {
                 System.out.println("Log: Brightness filter level: " + String.valueOf(filter_level));
 
                 filt = new BrightnessLinearFilter(THREAD_NUM, filter_level);
-                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                FilteredImage filteredImage = new FilteredImage(to_filter, filt);
                 BufferedImage image_out = filteredImage.getFilteredImage();
                 filtered_image = image_out;
 
@@ -656,7 +762,7 @@ public class mainUI extends javax.swing.JFrame {
             {
                 System.out.println("Log: Gamma filter level: " + String.valueOf(filter_level));
                 filt = new GammaCorrectionLinearFilter(THREAD_NUM, filter_level);
-                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                FilteredImage filteredImage = new FilteredImage(to_filter, filt);
                 BufferedImage image_out = filteredImage.getFilteredImage();
                 filtered_image = image_out;
                 System.out.println("Log: Applied gamma filter!");
@@ -670,11 +776,7 @@ public class mainUI extends javax.swing.JFrame {
             if (filter_level == 0.0f || filter_level < 0.0f)
             {
                 refreshPreview(loaded_original);
-                
-                if (clicks !=0)
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Reached minimum Inverse value!");
-                }
+                JOptionPane.showMessageDialog(rootPane, "Reached minimum Inverse value!");
                 filter_level = 0.0f;
                 limitTrigered = true;
             }
@@ -688,7 +790,7 @@ public class mainUI extends javax.swing.JFrame {
             {
                 System.out.println("Log: Inverse filter level: " + String.valueOf(filter_level));
                 filt = new InversionLinearFilter(THREAD_NUM, filter_level);
-                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                FilteredImage filteredImage = new FilteredImage(to_filter, filt);
                 BufferedImage image_out = filteredImage.getFilteredImage();
                 filtered_image = image_out;
                 System.out.println("Log: Applied inversion filter!");
@@ -702,25 +804,21 @@ public class mainUI extends javax.swing.JFrame {
             if (filter_level == 0.0f || filter_level < 0.0f)
             {
                 refreshPreview(loaded_original);
-                
-                if (clicks !=0)
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Reached minimum Rectification value!");
-                }
+                JOptionPane.showMessageDialog(rootPane, "Reached minimum Rectification value!");
                 filter_level = 0.0f;
                 limitTrigered = true;
             }
-            else if(filter_level > 1.0f)
+            else if(filter_level > 2.0f)
             {
                 JOptionPane.showMessageDialog(rootPane, "Reached maximum Rectification value!");
-                filter_level = 1.0f;
+                filter_level = 2.0f;
                 limitTrigered = true;
             }
             else
             {
                 System.out.println("Log: Rectification filter level: " + String.valueOf(filter_level));
                 filt = new RectificationLinearFilter(THREAD_NUM,filter_level);
-                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                FilteredImage filteredImage = new FilteredImage(to_filter, filt);
                 BufferedImage image_out = filteredImage.getFilteredImage();
                 filtered_image = image_out;
                 System.out.println("Log: Applied rectification filter!");
@@ -730,18 +828,98 @@ public class mainUI extends javax.swing.JFrame {
         
         //Saturation filter handler
         if(currentFilter == saturation)
-        {
-            float hue = filter_level;
-            float satur = 0.0f;
-            float lightness = 0.0f;
-            
-            filt = new HSLLinearFilter(THREAD_NUM,hue,satur,lightness);
-            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
-            BufferedImage image_out = filteredImage.getFilteredImage();
-            filtered_image = image_out;
-            
-            System.out.println("Log: Applied Saturation filter!");
-            refreshPreview(image_out);
+        {            
+            if(!hue_selected && !satur_selected && !lightness_selected)
+            {
+                JOptionPane.showMessageDialog(rootPane, "No option was selected! Chose hue, saturation or lightness first!");
+            }
+            else
+            {
+                if(hue_selected)
+                {
+                    //JOptionPane.showMessageDialog(rootPane, "Applying HUE!");
+                    if(sign.equals("+"))
+                    {
+                        hue = hue + intensity;
+                        
+                        to_filter = filtered_image;
+                    }
+                    else
+                    {
+                        hue = hue - intensity;
+                        to_filter = loaded_original;
+                    }
+                }
+                else if(satur_selected)
+                {
+                    //JOptionPane.showMessageDialog(rootPane, "Applying SATURATION!");
+                    if(sign.equals("+"))
+                    {
+                        satur = satur + intensity;
+                        to_filter = filtered_image;
+                    }
+                    else
+                    {
+                        satur = satur - intensity;
+                        to_filter = loaded_original;
+                    }
+                }
+                else if (lightness_selected)
+                {
+                    //JOptionPane.showMessageDialog(rootPane, "Applying LIGHTNESS!");
+                    if(sign.equals("+"))
+                    {
+                        lightness = lightness + intensity;
+                        to_filter = filtered_image;
+                    }
+                    else
+                    {
+                        lightness = lightness - intensity;
+                        to_filter = loaded_original;
+                    }
+                }
+                
+                if (hue < 0.0f)
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Reached minimum hue value!");
+                    hue = 0.0f;
+                }
+                else if (hue > 1.0f)
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Reached maximum hue value!");
+                    hue = 1.0f;
+                }
+                else if (satur < -1.0f)
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Reached minimum saturation value!");
+                    satur = -1.0f;
+                }
+                else if (satur > 1.0f)
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Reached minimum saturation value!");
+                    satur = 1.0f;
+                }
+                else if (lightness < -1.0f)
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Reached minimum lightness value!");
+                    lightness = -1.0f;
+                }
+                else if (lightness > 1.0f)
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Reached minimum lightness value!");
+                    lightness = 1.0f;
+                }
+                else
+                {
+                    filt = new HSLLinearFilter(THREAD_NUM,hue,satur,lightness);
+                    FilteredImage filteredImage = new FilteredImage(to_filter, filt);
+                    BufferedImage image_out = filteredImage.getFilteredImage();
+                    filtered_image = image_out;
+
+                    System.out.println("Log: Applied Saturation filter!");
+                    refreshPreview(image_out);
+                }
+            }
         }
 
         //Badblur filter handler
@@ -750,11 +928,7 @@ public class mainUI extends javax.swing.JFrame {
             if (filter_level == 0.0f || filter_level < 0.0f)
             {
                 refreshPreview(loaded_original);
-                
-                if (clicks !=0)
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Reached minimum Blur value!");
-                }
+                JOptionPane.showMessageDialog(rootPane, "Reached minimum Blur value!");
                 filter_level = 0.0f;
                 limitTrigered = true;
             }
@@ -768,7 +942,7 @@ public class mainUI extends javax.swing.JFrame {
             {
                 System.out.println("Log: Blur filter level: " + String.valueOf(filter_level));
                 filt = new BadBlurConvolutionFilter(THREAD_NUM,filter_level);
-                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                FilteredImage filteredImage = new FilteredImage(to_filter, filt);
                 BufferedImage image_out = filteredImage.getFilteredImage();
                 filtered_image = image_out;
                 System.out.println("Log: Applied bad blur filter!");
@@ -782,11 +956,7 @@ public class mainUI extends javax.swing.JFrame {
             if (filter_level == 0.0f || filter_level < 0.0f)
             {
                 refreshPreview(loaded_original);
-                
-                if (clicks !=0)
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Reached minimum Edge Detect value!");
-                }
+                JOptionPane.showMessageDialog(rootPane, "Reached minimum Edge Detect value!");
                 filter_level = 0.0f;
                 limitTrigered = true;
             }
@@ -800,7 +970,7 @@ public class mainUI extends javax.swing.JFrame {
             {
                 System.out.println("Log: Edge Detect filter level: " + String.valueOf(filter_level));
                 filt = new EdgeDetectConvolutionFilter(THREAD_NUM,filter_level);
-                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                FilteredImage filteredImage = new FilteredImage(to_filter, filt);
                 BufferedImage image_out = filteredImage.getFilteredImage();
                 filtered_image = image_out;
                 System.out.println("Log: Applied edge detect filter!");
@@ -814,11 +984,7 @@ public class mainUI extends javax.swing.JFrame {
             if (filter_level == 0.0f || filter_level < 0.0f)
             {
                 refreshPreview(loaded_original);
-                
-                if (clicks !=0)
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Reached minimum Emboss value!");
-                }
+                JOptionPane.showMessageDialog(rootPane, "Reached minimum Emboss value!");           
                 filter_level = 0.0f;
                 limitTrigered = true;
             }
@@ -832,7 +998,7 @@ public class mainUI extends javax.swing.JFrame {
             {
                 System.out.println("Log: Emboss filter level: " + String.valueOf(filter_level));
                 filt = new EmbossConvolutionFilter(THREAD_NUM,filter_level);
-                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                FilteredImage filteredImage = new FilteredImage(to_filter, filt);
                 BufferedImage image_out = filteredImage.getFilteredImage();
                 filtered_image = image_out;
                 System.out.println("Log: Applied emboss filter!");
@@ -846,11 +1012,7 @@ public class mainUI extends javax.swing.JFrame {
             if (filter_level == 0.0f || filter_level < 0.0f)
             {
                 refreshPreview(loaded_original);
-                
-                if (clicks !=0)
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Reached minimum Sharpening value!");
-                }
+                JOptionPane.showMessageDialog(rootPane, "Reached minimum Sharpening value!");
                 filter_level = 0.0f;
                 limitTrigered = true;
             }
@@ -864,7 +1026,7 @@ public class mainUI extends javax.swing.JFrame {
             {
                 System.out.println("Log: Sharpen filter level: " + String.valueOf(filter_level));
                 filt = new SharpenConvolutionFilter(THREAD_NUM,filter_level);
-                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                FilteredImage filteredImage = new FilteredImage(to_filter, filt);
                 BufferedImage image_out = filteredImage.getFilteredImage();
                 filtered_image = image_out;
                 System.out.println("Log: Applied sharpening filter!");
@@ -875,8 +1037,16 @@ public class mainUI extends javax.swing.JFrame {
         //Convolution filter handler
         if(currentFilter == convolution)
         {
+            if (filter_level == 0.0f || filter_level < 0.0f)
+            {
+                refreshPreview(loaded_original);
+                JOptionPane.showMessageDialog(rootPane, "Reached minimum Sharpening value!");
+                filter_level = 0.0f;
+                limitTrigered = true;
+            }
+            
             filt = new DefaultConvolutionFilter(THREAD_NUM);
-            FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+            FilteredImage filteredImage = new FilteredImage(to_filter, filt);
             BufferedImage image_out = filteredImage.getFilteredImage();
             filtered_image = image_out;
             
@@ -890,11 +1060,7 @@ public class mainUI extends javax.swing.JFrame {
             if (filter_level == 0.0f || filter_level < 0.0f)
             {
                 refreshPreview(loaded_original);
-                
-                if (clicks !=0)
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Reached minimum Binarize value!");
-                }
+                JOptionPane.showMessageDialog(rootPane, "Reached minimum Binarize value!");
                 filter_level = 0.0f;
                 limitTrigered = true;
             }
@@ -908,7 +1074,7 @@ public class mainUI extends javax.swing.JFrame {
             {
                 System.out.println("Log: Binarize filter level: " + String.valueOf(filter_level));
                 filt = new BinarizeLinearFilter(THREAD_NUM, filter_level);
-                FilteredImage filteredImage = new FilteredImage(loaded_original, filt);
+                FilteredImage filteredImage = new FilteredImage(to_filter, filt);
                 BufferedImage image_out = filteredImage.getFilteredImage();
                 filtered_image = image_out;
                 System.out.println("Log: Applied binarize filter!");
@@ -920,7 +1086,8 @@ public class mainUI extends javax.swing.JFrame {
          if(!limitTrigered)
          {
             long estimatedTime = System.currentTimeMillis() - startTime;
-            JOptionPane.showMessageDialog(rootPane, "Filter application took " + String.valueOf(estimatedTime) + " ms.");
+            //JOptionPane.showMessageDialog(rootPane, "Filter application took " + String.valueOf(estimatedTime) + " ms.");
+            time_box.setText(String.valueOf(estimatedTime) + " ms.");
          }
          limitTrigered = false;
          
@@ -936,6 +1103,11 @@ public class mainUI extends javax.swing.JFrame {
         ImageRW.saveImage(filtered_image, file_name_to_save);
         System.out.println("Log: Saved image!");
         JOptionPane.showMessageDialog(rootPane, "Filtered image saved successfully at " + file_name_to_save + ".png");
+        time_box.setText("");
+        if(currentFilter == saturation)
+        {
+            satur_msg.setText("Select one of the three options below.");
+        }
     }//GEN-LAST:event_save_buttonMouseClicked
     
     /**
@@ -945,6 +1117,78 @@ public class mainUI extends javax.swing.JFrame {
     private void minusMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_minusMouseClicked
         plusMouseClicked(evt);
     }//GEN-LAST:event_minusMouseClicked
+
+    private void lightness_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lightness_buttonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_lightness_buttonActionPerformed
+    
+    /**
+     * Handler to intercept hue/saturation/lightness buttons for the saturation filter
+     * @param evt 
+     */
+    private void handle_saturation_choices(java.awt.event.MouseEvent evt)
+    {
+        JButton b = null;
+        String sign = "";          
+        Object clicked_obj = evt.getSource();
+    
+        //Getting the instance of the button pressed hue/saturation/lightness
+        if(clicked_obj instanceof JButton)
+        {
+            b = (JButton)clicked_obj;
+        }
+        
+        if(b != null)
+        {        
+           sign = b.getText();
+           System.out.println("Log: Saturation add option chosen: " + sign);
+        }
+        
+        if (sign.equals("hue"))
+        {
+            satur_msg.setText("Hue selected! Now add or decrease levels.");
+            hue_selected = true;
+            satur_selected = false;
+            lightness_selected = false;
+        }
+        else if (sign.equals("saturation"))
+        {
+            satur_msg.setText("Saturation selected! Now add or decrease levels.");
+            hue_selected = false;
+            satur_selected = true;
+            lightness_selected = false;
+        }
+        else if (sign.equals("lightness"))
+        {
+            satur_msg.setText("Lightness selected! Now add or decrease levels.");
+            hue_selected = false;
+            satur_selected = false;
+            lightness_selected = true;
+        }
+    }
+    /**
+     * Hook to saturation handler for hue case.
+     * @param evt 
+     */
+    private void hue_buttonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_hue_buttonMouseClicked
+        handle_saturation_choices(evt);
+    }//GEN-LAST:event_hue_buttonMouseClicked
+
+    /**
+    * Hook to saturation handler for lightness case.
+    * @param evt 
+    */
+    private void lightness_buttonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lightness_buttonMouseClicked
+        handle_saturation_choices(evt);
+    }//GEN-LAST:event_lightness_buttonMouseClicked
+
+    /**
+    * Hook to saturation handler for saturation case.
+    * @param evt 
+    */
+    private void saturation_buttonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saturation_buttonMouseClicked
+        handle_saturation_choices(evt);
+    }//GEN-LAST:event_saturation_buttonMouseClicked
     
     /**
      * @param args the command line arguments
@@ -988,15 +1232,21 @@ public class mainUI extends javax.swing.JFrame {
     private javax.swing.JFrame editing_menu;
     private javax.swing.JButton file_choice_button;
     private javax.swing.JComboBox<String> filter_chooser_drop_box;
+    private javax.swing.JButton hue_button;
     private javax.swing.JLabel image_label;
     private javax.swing.JDialog jDialog1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JButton lightness_button;
     private javax.swing.JButton minus;
     private javax.swing.JButton plus;
+    private javax.swing.JLabel satur_msg;
+    private javax.swing.JButton saturation_button;
     private javax.swing.JButton save_button;
     private javax.swing.JButton start_button;
     private javax.swing.JTextField text_field;
+    private javax.swing.JTextField time_box;
     private javax.swing.JLabel title;
     // End of variables declaration//GEN-END:variables
 }
