@@ -141,7 +141,7 @@ public class mainUI extends javax.swing.JFrame {
         editing_menu.getContentPane().add(image_label);
         image_label.setBounds(20, 100, 890, 520);
 
-        filter_chooser_drop_box.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "BinarizeLinear", "Brightness", "Gamma", "Inversion", "Rectification", "Saturation", "Convolution", "BadBlurConvolution", "EdgeDetectConvolution", "EmbossConvolution", "SharpenConvolution" }));
+        filter_chooser_drop_box.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Binarization", "Brightness", "GammaCorrection", "ColorInversion", "Rectification", "Hue-Saturation-Brightness", "Convolution", "Blur", "EdgeDetect", "Emboss", "Sharpen" }));
         filter_chooser_drop_box.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 filter_chooser_drop_boxActionPerformed(evt);
@@ -270,7 +270,7 @@ public class mainUI extends javax.swing.JFrame {
         jLabel1.setMaximumSize(new java.awt.Dimension(1280, 800));
         jLabel1.setMinimumSize(new java.awt.Dimension(1280, 800));
         editing_menu.getContentPane().add(jLabel1);
-        jLabel1.setBounds(0, -10, 1280, 820);
+        jLabel1.setBounds(0, -10, 1280, 830);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(1280, 800));
@@ -536,12 +536,12 @@ public class mainUI extends javax.swing.JFrame {
            currentFilter = brightness;
        }
        //Set active filter as gamma filter
-       else if (chosen_filter.equals("Gamma"))
+       else if (chosen_filter.equals("GammaCorrection"))
        {
            currentFilter = gamma;    
        }
        //Set active filter as inversion filter
-       else if (chosen_filter.equals("Inversion"))
+       else if (chosen_filter.equals("ColorInversion"))
        {
            currentFilter = inverse;      
        }
@@ -551,7 +551,7 @@ public class mainUI extends javax.swing.JFrame {
            currentFilter = rectification;   
        }
        //Set active filter as saturation filter
-       else if (chosen_filter.equals("Saturation"))
+       else if (chosen_filter.equals("Hue-Saturation-Brightness"))
        {
            currentFilter = saturation;    
            hue_button.setVisible(true);
@@ -569,27 +569,27 @@ public class mainUI extends javax.swing.JFrame {
            currentFilter = convolution;        
        }
        //Set active filter as badblur filter
-       else if (chosen_filter.equals("BadBlurConvolution"))
+       else if (chosen_filter.equals("Blur"))
        {
            currentFilter = badblur;
        }
        //Set active filter as edge detect filter
-       else if (chosen_filter.equals("EdgeDetectConvolution"))
+       else if (chosen_filter.equals("EdgeDetect"))
        {
            currentFilter = edgedetect;         
        }
        //Set active filter as emboss filter
-       else if (chosen_filter.equals("EmbossConvolution"))
+       else if (chosen_filter.equals("Emboss"))
        {
            currentFilter = emboss;         
        }
        //Set active filter as sharpen filter
-       else if (chosen_filter.equals("SharpenConvolution"))
+       else if (chosen_filter.equals("Sharpen"))
        {
            currentFilter = sharpen;        
        }
        //Set active filter as binarize filter
-       else if (chosen_filter.equals("BinarizeLinear"))
+       else if (chosen_filter.equals("Binarization"))
        {
             currentFilter = binarize;
        }
@@ -896,7 +896,7 @@ public class mainUI extends javax.swing.JFrame {
                 }
                 else if (satur > 1.0f)
                 {
-                    JOptionPane.showMessageDialog(rootPane, "Reached minimum saturation value!");
+                    JOptionPane.showMessageDialog(rootPane, "Reached maximum saturation value!");
                     satur = 1.0f;
                 }
                 else if (lightness < -1.0f)
@@ -906,7 +906,7 @@ public class mainUI extends javax.swing.JFrame {
                 }
                 else if (lightness > 1.0f)
                 {
-                    JOptionPane.showMessageDialog(rootPane, "Reached minimum lightness value!");
+                    JOptionPane.showMessageDialog(rootPane, "Reached maximum lightness value!");
                     lightness = 1.0f;
                 }
                 else
@@ -1040,7 +1040,7 @@ public class mainUI extends javax.swing.JFrame {
             if (filter_level == 0.0f || filter_level < 0.0f)
             {
                 refreshPreview(loaded_original);
-                JOptionPane.showMessageDialog(rootPane, "Reached minimum Sharpening value!");
+                JOptionPane.showMessageDialog(rootPane, "Reached minimum Convolution value!");
                 filter_level = 0.0f;
                 limitTrigered = true;
             }
