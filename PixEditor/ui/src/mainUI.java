@@ -45,7 +45,7 @@ public class mainUI extends javax.swing.JFrame {
      * GLOBALS
      */
     
-    public int THREAD_NUM = 4;
+    public int THREAD_NUM = 8;
     public float intensity = 0.25f;
     
     //Filter codes
@@ -141,7 +141,7 @@ public class mainUI extends javax.swing.JFrame {
         editing_menu.getContentPane().add(image_label);
         image_label.setBounds(20, 100, 890, 520);
 
-        filter_chooser_drop_box.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Binarization", "Brightness", "GammaCorrection", "ColorInversion", "Rectification", "Hue-Saturation-Brightness", "Convolution", "Blur", "EdgeDetect", "Emboss", "Sharpen" }));
+        filter_chooser_drop_box.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Binarization", "Brightness", "Gamma Correction", "Color Inversion", "Rectification", "Hue-Saturation-Light", "Convolution", "Blur", "Edge Detect", "Emboss", "Sharpen" }));
         filter_chooser_drop_box.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 filter_chooser_drop_boxActionPerformed(evt);
@@ -279,7 +279,7 @@ public class mainUI extends javax.swing.JFrame {
 
         title.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ui_elements/title.png"))); // NOI18N
         getContentPane().add(title);
-        title.setBounds(340, -10, 1010, 160);
+        title.setBounds(400, 120, 1010, 160);
 
         file_choice_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/ui_elements/browse_button.png"))); // NOI18N
         file_choice_button.setText("jButton1");
@@ -536,12 +536,12 @@ public class mainUI extends javax.swing.JFrame {
            currentFilter = brightness;
        }
        //Set active filter as gamma filter
-       else if (chosen_filter.equals("GammaCorrection"))
+       else if (chosen_filter.equals("Gamma Correction"))
        {
            currentFilter = gamma;    
        }
        //Set active filter as inversion filter
-       else if (chosen_filter.equals("ColorInversion"))
+       else if (chosen_filter.equals("Color Inversion"))
        {
            currentFilter = inverse;      
        }
@@ -551,7 +551,7 @@ public class mainUI extends javax.swing.JFrame {
            currentFilter = rectification;   
        }
        //Set active filter as saturation filter
-       else if (chosen_filter.equals("Hue-Saturation-Brightness"))
+       else if (chosen_filter.equals("Hue-Saturation-Light"))
        {
            currentFilter = saturation;    
            hue_button.setVisible(true);
@@ -574,7 +574,7 @@ public class mainUI extends javax.swing.JFrame {
            currentFilter = badblur;
        }
        //Set active filter as edge detect filter
-       else if (chosen_filter.equals("EdgeDetect"))
+       else if (chosen_filter.equals("Edge Detect"))
        {
            currentFilter = edgedetect;         
        }
