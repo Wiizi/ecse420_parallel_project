@@ -15,13 +15,12 @@ public class Main {
         BufferedImage image_in, image_out;
         image_in = ImageRW.readImage("grumpy");
 
-        Filter linearFilter = new SaturationLinearFilter(number_of_threads,1.5f,1f,1);
+        Filter linearFilter = new HSLLinearFilter(number_of_threads,1.5f,1f,1);
         Filter convolutionFilter = new SharpenConvolutionFilter(number_of_threads, 1f);
 
         long t1 = System.currentTimeMillis();
         FilteredImage filteredImage = new FilteredImage(image_in, linearFilter);
         long t2 = System.currentTimeMillis();
-
         System.out.println("Time spent: [" +(t2-t1) +"]");
 
         image_out = filteredImage.getFilteredImage();
